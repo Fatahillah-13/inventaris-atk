@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\StockMovementController;
+use App\Http\Controllers\LoanController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -19,14 +20,29 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+// PUBLIC FORM PEMINJAMAN (TANPA LOGIN)
+Route::get('peminjaman', [LoanController::class, 'publicCreate'])
+    ->name('public.loans.create')
+    ->middleware('throttle:20,1'); // max 20 request per menit per IP (contoh)
+
+Route::post('peminjaman', [LoanController::class, 'publicStore'])
+    ->name('public.loans.store')
+    ->middleware('throttle:10,1'); // batasi submit
+
 Route::middleware(['auth', 'role:admin,staff_pengelola'])->group(function () {
     Route::resource('items', ItemController::class);
 
+    // catatan barang masuk/keluar
     Route::get('stock', [StockMovementController::class, 'index'])->name('stock.index');
     Route::get('stock/masuk', [StockMovementController::class, 'createMasuk'])->name('stock.masuk.create');
     Route::post('stock/masuk', [StockMovementController::class, 'storeMasuk'])->name('stock.masuk.store');
     Route::get('stock/keluar', [StockMovementController::class, 'createKeluar'])->name('stock.keluar.create');
     Route::post('stock/keluar', [StockMovementController::class, 'storeKeluar'])->name('stock.keluar.store');
+
+    // daftar peminjaman, pengembalian, dll
+    Route::get('loans', [LoanController::class, 'index'])->name('loans.index');
+    Route::get('loans/{loan}', [LoanController::class, 'show'])->name('loans.show');
+    Route::post('loans/{loan}/return', [LoanController::class, 'returnLoan'])->name('loans.return');
 });
 
 require __DIR__ . '/auth.php';

@@ -103,7 +103,8 @@
                 </a>
 
                 {{-- (Opsional) Card lain untuk nanti: Permintaan ATK, Laporan, dll. --}}
-                <a href="#" class="block bg-white overflow-hidden shadow-sm rounded-lg border border-gray-200 opacity-50 cursor-not-allowed">
+                <a href="#"
+                    class="block bg-white overflow-hidden shadow-sm rounded-lg border border-gray-200 opacity-50 cursor-not-allowed">
                     <div class="p-5">
                         <h3 class="text-lg font-semibold text-gray-800 mb-1">
                             (Coming Soon) Permintaan ATK
@@ -111,6 +112,26 @@
                         <p class="text-sm text-gray-500 mb-3">
                             Fitur permintaan ATK oleh karyawan dengan approval.
                         </p>
+                    </div>
+                </a>
+
+                {{-- Card: Peminjaman ATK (internal list) --}}
+                <a href="{{ route('loans.index') }}"
+                    class="block bg-white overflow-hidden shadow-sm rounded-lg border border-gray-200 hover:shadow-md transition">
+                    <div class="p-5">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-1">
+                            Peminjaman ATK
+                        </h3>
+                        <p class="text-sm text-gray-500 mb-3">
+                            Lihat dan kelola daftar peminjaman alat tulis kantor.
+                        </p>
+                        <span class="inline-flex items-center text-xs font-semibold text-gray-700">
+                            Buka Daftar Peminjaman
+                            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 5l7 7-7 7" />
+                            </svg>
+                        </span>
                     </div>
                 </a>
 
