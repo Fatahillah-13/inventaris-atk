@@ -15,15 +15,13 @@
         {{-- Logo + Nama Aplikasi --}}
         <div class="flex flex-col items-center mb-8">
             {{-- Logo bulat sederhana, nanti bisa diganti gambar asli --}}
-            <div class="w-14 h-14 rounded-full bg-indigo-500 flex items-center justify-center text-lg font-bold mb-3">
-                ATK
-            </div>
+            <img src="{{ asset('images/logo.png') }}" alt="Logo" class="w-14 h-14 rounded-full mb-3 object-cover">
             <div class="text-center">
                 <div class="text-sm text-slate-400 tracking-[0.25em] uppercase mb-1">
                     Sistem Internal
                 </div>
                 <h1 class="text-2xl font-semibold text-slate-50">
-                    Sistem Inventaris ATK
+                    Sistem Inventaris HRD
                 </h1>
                 <p class="text-xs text-slate-400 mt-1">
                     Hwaseung Indonesia
@@ -46,7 +44,7 @@
             @if (Route::has('public.loans.create'))
                 <a href="{{ route('public.loans.create') }}"
                     class="w-full inline-flex items-center justify-center px-4 py-3 rounded-md bg-emerald-500 text-xs font-semibold uppercase tracking-widest text-slate-950 hover:bg-emerald-400">
-                    Peminjaman ATK
+                    Peminjaman Barang
                 </a>
             @else
                 <button type="button" disabled

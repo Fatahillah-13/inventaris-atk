@@ -2,7 +2,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-white leading-tight">
-            Dashboard Inventaris ATK
+            Dashboard Inventaris HRD
         </h2>
     </x-slot>
 
@@ -15,7 +15,7 @@
                     Selamat datang, <span class="font-semibold">{{ auth()->user()->name }}</span>.
                 </p>
                 <p class="text-gray-300 text-xs">
-                    Pilih menu di bawah untuk mengelola inventaris alat tulis kantor.
+                    Pilih menu di bawah untuk mengelola inventaris HRD.
                 </p>
             </div>
 
@@ -34,7 +34,7 @@
                             Master Barang
                         </h3>
                         <p class="text-sm text-gray-500 mb-3">
-                            Lihat dan kelola data barang ATK (kode, nama, kategori, stok).
+                            Lihat dan kelola data barang HRD (kode, nama, kategori, stok).
                         </p>
                         <span class="inline-flex items-center text-xs font-semibold text-indigo-600">
                             Buka Halaman
@@ -127,7 +127,7 @@
                             Peminjaman ATK
                         </h3>
                         <p class="text-sm text-gray-500 mb-3">
-                            Lihat dan kelola daftar peminjaman alat tulis kantor.
+                            Lihat dan kelola daftar peminjaman barang HRD.
                         </p>
                         <span class="inline-flex items-center text-xs font-semibold text-gray-700">
                             Buka Daftar Peminjaman
