@@ -31,14 +31,17 @@
 
         {{-- Tombol-tombol utama --}}
         <div class="space-y-3">
-            {{-- Permintaan ATK - coming soon --}}
-            <button type="button" disabled
-                class="w-full inline-flex items-center justify-between px-4 py-3 rounded-md border border-slate-700 bg-slate-900/60 text-xs font-semibold uppercase tracking-widest text-slate-500 cursor-not-allowed">
-                <span>Permintaan ATK</span>
-                <span class="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-amber-300">
-                    COMING SOON
-                </span>
-            </button>
+            {{-- Permintaan ATK --}}
+            @if (Route::has('public.requests.create'))
+                <a href="{{ route('public.requests.create') }}"
+                    class="w-full inline-flex items-center justify-between px-4 py-3 rounded-md border border-slate-700 bg-slate-900/60 text-xs font-semibold uppercase tracking-widest text-slate-100 hover:border-slate-400">
+                    <span>Permintaan ATK</span>
+                    <span
+                        class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/40">
+                        FORM AKTIF
+                    </span>
+                </a>
+            @endif
 
             {{-- Peminjaman ATK --}}
             @if (Route::has('public.loans.create'))

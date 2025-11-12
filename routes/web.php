@@ -6,6 +6,7 @@ use App\Http\Controllers\ItemController;
 use App\Http\Controllers\StockMovementController;
 use App\Http\Controllers\LoanController;
 use App\Http\Controllers\UserManagementController;
+use App\Http\Controllers\AtkRequestController;
 
 Route::get('/', function () {
     return view('landing');
@@ -39,6 +40,15 @@ Route::post('peminjaman', [LoanController::class, 'publicStore'])
     ->name('public.loans.store')
     ->middleware('throttle:10,1'); // batasi submit
 
+// FORM PERMINTAAN ATK (TANPA LOGIN)
+Route::get('permintaan-atk', [AtkRequestController::class, 'publicCreate'])
+    ->name('public.requests.create')
+    ->middleware('throttle:20,1');
+
+Route::post('permintaan-atk', [AtkRequestController::class, 'publicStore'])
+    ->name('public.requests.store')
+    ->middleware('throttle:10,1');
+
 Route::middleware(['auth', 'role:admin,staff_pengelola'])->group(function () {
     Route::resource('items', ItemController::class);
 
@@ -53,6 +63,9 @@ Route::middleware(['auth', 'role:admin,staff_pengelola'])->group(function () {
     Route::get('loans', [LoanController::class, 'index'])->name('loans.index');
     Route::get('loans/{loan}', [LoanController::class, 'show'])->name('loans.show');
     Route::post('loans/{loan}/return', [LoanController::class, 'returnLoan'])->name('loans.return');
+
+    // Daftar permintaan ATK (internal)
+    Route::get('requests', [AtkRequestController::class, 'index'])->name('requests.index');
 });
 
 require __DIR__ . '/auth.php';
