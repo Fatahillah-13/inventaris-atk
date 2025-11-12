@@ -8,8 +8,17 @@ use App\Http\Controllers\LoanController;
 use App\Http\Controllers\UserManagementController;
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('landing');
 });
+
+// Route::get('/welcome-test', function () {
+//     return view('welcome');
+// });
+
+Route::get('/register', function () {
+    abort(404);
+});
+
 
 Route::get('/dashboard', function () {
     return view('dashboard');
