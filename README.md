@@ -1,4 +1,4 @@
-# Sistem Inventaris ATK – Hwaseung Indonesia
+# SEDIA – Sistem Elektronik Data Inventaris & Aset – HRD | Hwaseung Indonesia
 
 Aplikasi web internal untuk mengelola **inventaris alat tulis kantor (ATK)** di lingkungan perusahaan (contoh: Hwaseung Indonesia).
 

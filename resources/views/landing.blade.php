@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Inventaris ATK - Hwaseung Indonesia</title>
+    <title>SEDIA - HRD</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -18,13 +18,13 @@
             <img src="{{ asset('images/logo.png') }}" alt="Logo" class="w-14 h-14 rounded-full mb-3 object-cover">
             <div class="text-center">
                 <div class="text-sm text-slate-400 tracking-[0.25em] uppercase mb-1">
-                    Sistem Internal
+                    SEDIA
                 </div>
-                <h1 class="text-2xl font-semibold text-slate-50">
-                    Sistem Inventaris HRD
+                <h1 class="text-xl font-semibold text-slate-50">
+                    Sistem Elektronik Data Inventaris & Aset
                 </h1>
                 <p class="text-xs text-slate-400 mt-1">
-                    Hwaseung Indonesia
+                    HRD | Hwaseung Indonesia
                 </p>
             </div>
         </div>
@@ -67,7 +67,7 @@
 
         {{-- Footer kecil --}}
         <div class="mt-8 text-[10px] text-slate-500 text-center">
-            © {{ date('Y') }} Sistem Inventaris ATK • Internal use only
+            © {{ date('Y') }} INDAH | Inventory Database HRD
         </div>
     </div>
 
