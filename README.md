@@ -1,59 +1,231 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Sistem Inventaris ATK – Hwaseung Indonesia
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Aplikasi web internal untuk mengelola **inventaris alat tulis kantor (ATK)** di lingkungan perusahaan (contoh: Hwaseung Indonesia).
 
-## About Laravel
+Dibangun dengan:
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+-   Laravel 11
+-   Laravel Breeze (Blade + Tailwind CSS)
+-   MySQL / MariaDB
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+---
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Tentang Aplikasi
 
-## Learning Laravel
+Sistem ini dibuat untuk membantu:
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+-   Mengontrol stok ATK (masuk & keluar).
+-   Mencatat peminjaman barang yang akan dikembalikan.
+-   Menyediakan riwayat pergerakan stok yang jelas.
+-   Mengelola user dan hak akses berdasarkan role.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+---
 
-## Laravel Sponsors
+## Fitur Utama
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### 1. Autentikasi & Role User
 
-### Premium Partners
+-   Login / logout menggunakan Laravel Breeze.
+-   Role user:
+    -   `admin`
+    -   `staff_pengelola`
+-   Akses berdasarkan role:
+    -   `admin`:
+        -   Mengelola user.
+        -   Mengelola master barang.
+        -   Mengelola transaksi stok dan peminjaman.
+    -   `staff_pengelola`:
+        -   Mengelola master barang.
+        -   Mengelola transaksi stok dan peminjaman.
+        -   Tidak dapat mengelola user.
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+---
 
-## Contributing
+### 2. Master Data Barang ATK
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Menu: **Master Barang**
 
-## Code of Conduct
+Mencatat data master untuk setiap ATK:
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+-   Kode barang
+-   Nama barang
+-   Kategori (pulpen, kertas, map, dll.)
+-   Satuan (pcs, box, rim, pak, dll.)
+-   Stok awal
+-   Stok terkini
+-   Catatan
 
-## Security Vulnerabilities
+Catatan penting:
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+-   Di halaman **edit barang**, stok hanya ditampilkan (read-only).
+-   Perubahan stok dilakukan melalui transaksi:
+    -   Barang Masuk
+    -   Barang Keluar
+    -   Peminjaman / Pengembalian
 
-## License
+---
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### 3. Barang Masuk
+
+Menu: **Barang Masuk**
+
+Digunakan untuk mencatat **penambahan stok**.
+
+Input:
+
+-   Barang (dipilih dari master barang)
+-   Jumlah
+-   Tanggal
+-   Keterangan (opsional)
+
+Proses:
+
+-   Stok terkini barang bertambah.
+-   Transaksi dicatat di tabel riwayat stok dengan jenis **masuk**.
+
+---
+
+### 4. Barang Keluar
+
+Menu: **Barang Keluar**
+
+Digunakan untuk mencatat ATK yang **keluar dan habis pakai**.
+
+Input:
+
+-   Barang
+-   Jumlah
+-   Tanggal
+-   Keterangan (misalnya untuk divisi tertentu atau keperluan tertentu)
+
+Proses:
+
+-   Stok terkini barang berkurang.
+-   Ada validasi untuk mencegah stok menjadi negatif.
+-   Transaksi dicatat di tabel riwayat stok dengan jenis **keluar**.
+
+---
+
+### 5. Riwayat Stok
+
+Menu: **Riwayat Stok**
+
+Menampilkan log pergerakan stok dari seluruh transaksi:
+
+-   Barang masuk
+-   Barang keluar
+-   Peminjaman
+-   Pengembalian
+
+Informasi yang terlihat:
+
+-   Tanggal transaksi
+-   Jenis transaksi (masuk / keluar)
+-   Barang (kode, nama, satuan)
+-   Jumlah
+-   User internal yang mencatat (jika ada)
+-   Keterangan
+
+Riwayat stok menggunakan pagination untuk memudahkan navigasi data.
+
+---
+
+### 6. Peminjaman ATK
+
+Sistem mendukung peminjaman ATK yang nantinya akan dikembalikan, misalnya:
+
+-   Gunting
+-   Stapler
+-   Kalkulator
+-   Barang non-habis pakai lainnya
+
+Peminjaman terbagi dua sisi:
+
+#### 6.1. Form Peminjaman (Tanpa Login)
+
+-   Dapat diakses tanpa login (misalnya oleh karyawan melalui jaringan internal).
+-   Karyawan mengisi:
+    -   Nama peminjam
+    -   Departemen / divisi
+    -   Barang yang ingin dipinjam
+        -   Stok terkini ditampilkan.
+        -   Barang dengan stok 0 ditandai habis dan tidak dapat dipilih.
+    -   Jumlah yang dipinjam
+    -   Tanggal pinjam
+    -   Tanggal rencana kembali (opsional)
+    -   Keterangan (opsional)
+-   Proses sistem:
+    -   Mengurangi stok terkini barang.
+    -   Menyimpan data peminjaman di tabel khusus peminjaman.
+    -   Mencatat transaksi di riwayat stok dengan jenis **keluar** dan keterangan peminjaman.
+
+Form peminjaman publik dilindungi dengan pembatasan jumlah permintaan (rate limiting) untuk mengurangi risiko spam.
+
+#### 6.2. Manajemen Peminjaman (Internal)
+
+Diakses oleh user yang sudah login sebagai `admin` atau `staff_pengelola`.
+
+Fitur:
+
+-   Melihat daftar peminjaman:
+    -   Kode peminjaman
+    -   Nama peminjam dan departemen
+    -   Barang dan jumlah
+    -   Tanggal pinjam
+    -   Tanggal rencana kembali
+    -   Tanggal kembali (jika sudah dikembalikan)
+    -   Status peminjaman (masih dipinjam / sudah dikembalikan)
+-   Filter berdasarkan status (semua, masih dipinjam, sudah dikembalikan).
+-   Menandai peminjaman sebagai **sudah dikembalikan**:
+    -   Menambahkan stok terkini barang sesuai jumlah pinjaman.
+    -   Mengubah status dan tanggal kembali di data peminjaman.
+    -   Mencatat transaksi di riwayat stok dengan jenis **masuk** dan keterangan pengembalian.
+
+---
+
+### 7. Manajemen User (Admin Only)
+
+Menu: **Manajemen User**
+
+Hanya untuk user dengan role `admin`.
+
+Fitur:
+
+-   Melihat daftar user:
+    -   Nama
+    -   Email
+    -   Role
+-   Menambah user baru:
+    -   Nama
+    -   Email
+    -   Role (`admin` atau `staff_pengelola`)
+    -   Password + konfirmasi password
+-   Mengubah user:
+    -   Nama
+    -   Email
+    -   Role
+    -   Password baru (opsional; jika tidak diisi, password lama tetap dipakai)
+-   Menghapus user:
+    -   Admin tidak dapat menghapus akun dirinya sendiri (untuk mencegah kehilangan akses).
+
+---
+
+## Teknologi yang Digunakan
+
+-   Laravel 11
+-   Laravel Breeze (Blade + Tailwind CSS)
+-   MySQL / MariaDB
+-   Eloquent ORM
+-   Middleware autentikasi dan role-based access
+
+---
+
+## Persyaratan Sistem
+
+-   PHP 8.2 atau lebih baru
+-   Composer
+-   MySQL / MariaDB
+-   Node.js dan NPM
+-   Git (opsional, untuk clone repository)
+
+---
