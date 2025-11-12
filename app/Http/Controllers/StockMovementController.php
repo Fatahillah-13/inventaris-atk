@@ -15,14 +15,44 @@ class StockMovementController extends Controller
     //     $this->middleware(['auth', 'role:admin,staff_pengelola']);
     // }
 
-    public function index()
+    public function index(Request $request)
     {
-        $movements = StockMovement::with('item', 'user')
-            ->orderBy('tanggal', 'desc')
-            ->orderBy('created_at', 'desc')
-            ->paginate(20);
+        $query = StockMovement::with('item', 'user');
 
-        return view('stock.index', compact('movements'));
+        // Search: kode barang, nama barang, atau keterangan
+        if ($request->filled('q')) {
+            $search = $request->q;
+
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('item', function ($qi) use ($search) {
+                    $qi->where('kode_barang', 'like', "%{$search}%")
+                        ->orWhere('nama_barang', 'like', "%{$search}%");
+                })->orWhere('keterangan', 'like', "%{$search}%");
+            });
+        }
+
+        // Filter jenis: masuk / keluar
+        if ($request->filled('jenis') && in_array($request->jenis, ['masuk', 'keluar'])) {
+            $query->where('jenis', $request->jenis);
+        }
+
+        // Urutan waktu: terbaru / terlama
+        $waktu = $request->get('waktu', 'terbaru'); // default: terbaru
+        $direction = $waktu === 'terlama' ? 'asc' : 'desc';
+
+        $query->orderBy('tanggal', $direction)
+            ->orderBy('created_at', $direction);
+
+        $movements = $query->paginate(20)->withQueryString();
+
+        return view('stock.index', [
+            'movements' => $movements,
+            'filters'   => [
+                'q'     => $request->q,
+                'jenis' => $request->jenis,
+                'waktu' => $waktu,
+            ],
+        ]);
     }
 
     public function createMasuk()
