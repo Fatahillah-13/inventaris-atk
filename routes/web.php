@@ -7,6 +7,7 @@ use App\Http\Controllers\StockMovementController;
 use App\Http\Controllers\LoanController;
 use App\Http\Controllers\UserManagementController;
 use App\Http\Controllers\AtkRequestController;
+use App\Http\Controllers\DivisionController;
 
 Route::get('/', function () {
     return view('landing');
@@ -77,4 +78,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('users/{user}/edit', [UserManagementController::class, 'edit'])->name('users.edit');
     Route::put('users/{user}', [UserManagementController::class, 'update'])->name('users.update');
     Route::delete('users/{user}', [UserManagementController::class, 'destroy'])->name('users.destroy');
+
+    // Manajemen divisi
+    Route::resource('divisions', DivisionController::class)->except(['show']);
 });

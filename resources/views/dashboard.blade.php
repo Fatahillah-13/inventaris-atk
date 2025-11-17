@@ -166,6 +166,26 @@
                             </span>
                         </div>
                     </a>
+
+                    {{-- Card Manajemen Divisi --}}
+                    <a href="{{ route('divisions.index') }}"
+                        class="block bg-white overflow-hidden shadow-sm rounded-lg border border-gray-200 hover:shadow-md transition">
+                        <div class="p-5">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-1">
+                                Manajemen Divisi
+                            </h3>
+                            <p class="text-sm text-gray-500 mb-3">
+                                Tambah, edit, dan hapus divisi.
+                            </p>
+                            <span class="inline-flex items-center text-xs font-semibold text-gray-700">
+                                Buka Manajemen Divisi
+                                <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 5l7 7-7 7" />
+                                </svg>
+                            </span>
+                        </div>
+                    </a>
                 @endif
 
             </div>
