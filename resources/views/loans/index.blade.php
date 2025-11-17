@@ -17,11 +17,6 @@
 
             {{-- Filter status --}}
             <div class="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                <div>
-                    <p class="text-sm text-gray-600">
-                        Kelola peminjaman alat tulis: lihat mana yang masih dipinjam dan mana yang sudah dikembalikan.
-                    </p>
-                </div>
 
                 <form method="GET" class="flex items-center gap-2 text-sm">
                     <label for="status" class="text-gray-700">Filter:</label>
@@ -38,6 +33,30 @@
             </div>
 
             <div class="bg-white shadow-sm sm:rounded-lg overflow-hidden">
+
+                {{-- Header card --}}
+                <div
+                    class="px-4 py-3 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div>
+                        <h3 class="text-base font-semibold text-gray-800">
+                            Daftar Peminjaman Barang
+                        </h3>
+                        <p class="text-xs text-gray-500">
+                            Kelola peminjaman Barang: lihat mana yang masih dipinjam dan mana yang sudah dikembalikan.
+                        </p>
+                    </div>
+
+                    <div class="flex gap-2">
+                        {{-- Shortcut ke form publik (opsional) --}}
+                        @if (Route::has('public.requests.create'))
+                            <a href="{{ route('public.requests.create') }}" target="_blank"
+                                class="inline-flex items-center px-3 py-2 bg-slate-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-slate-900">
+                                Buka Form Peminjaman
+                            </a>
+                        @endif
+                    </div>
+                </div>
+
                 <table class="min-w-full text-sm">
                     <thead class="bg-gray-100 text-gray-700">
                         <tr>

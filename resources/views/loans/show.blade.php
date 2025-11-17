@@ -21,7 +21,7 @@
                 <div class="px-5 py-4 border-b border-gray-200 flex justify-between items-center">
                     <div>
                         <div class="text-xs text-gray-500 uppercase tracking-[0.2em]">
-                            Peminjaman ATK
+                            Peminjaman Barang
                         </div>
                         <div class="text-lg font-semibold text-gray-800">
                             {{ $loan->kode_loan }}

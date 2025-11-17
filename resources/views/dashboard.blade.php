@@ -131,7 +131,7 @@
                     class="block bg-white overflow-hidden shadow-sm rounded-lg border border-gray-200 hover:shadow-md transition">
                     <div class="p-5">
                         <h3 class="text-lg font-semibold text-gray-800 mb-1">
-                            Peminjaman ATK
+                            Peminjaman Barang
                         </h3>
                         <p class="text-sm text-gray-500 mb-3">
                             Lihat dan kelola daftar peminjaman barang HRD.

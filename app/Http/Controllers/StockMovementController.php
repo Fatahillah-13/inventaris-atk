@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Item;
+use App\Models\Division;
+use App\Models\ItemDivisionStock;
 use App\Models\StockMovement;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -58,30 +60,41 @@ class StockMovementController extends Controller
     public function createMasuk()
     {
         $items = Item::orderBy('nama_barang')->get();
-        return view('stock.masuk', compact('items'));
+        $divisions = Division::orderBy('nama')->get();
+        return view('stock.masuk', compact('items', 'divisions'));
     }
 
     public function storeMasuk(Request $request)
     {
         $validated = $request->validate([
             'item_id'    => 'required|exists:items,id',
+            'division_id' => 'required|exists:divisions,id',
             'jumlah'     => 'required|integer|min:1',
             'tanggal'    => 'required|date',
             'keterangan' => 'nullable|string',
         ]);
 
         DB::transaction(function () use ($validated) {
-            $item = Item::lockForUpdate()->findOrFail($validated['item_id']);
+            $stock = ItemDivisionStock::lockForUpdate()
+                ->firstOrCreate([
+                    'item_id'     => $validated['item_id'],
+                    'division_id' => $validated['division_id'],
+                ], [
+                    'stok_terkini' => 0,
+                ]);
 
-            $item->increment('stok_terkini', $validated['jumlah']);
+            // tambahkan stok
+            $stock->increment('stok_terkini', $validated['jumlah']);
 
+            // catat pergerakan stok
             StockMovement::create([
-                'item_id'    => $item->id,
-                'jenis'      => 'masuk',
-                'jumlah'     => $validated['jumlah'],
-                'tanggal'    => $validated['tanggal'],
-                'user_id'    => Auth::id(),
-                'keterangan' => $validated['keterangan'] ?? null,
+                'item_id'     => $validated['item_id'],
+                'division_id' => $validated['division_id'],
+                'jenis'       => 'masuk',
+                'jumlah'      => $validated['jumlah'],
+                'tanggal'     => $validated['tanggal'],
+                'user_id'     => Auth::id(),
+                'keterangan'  => $validated['keterangan'] ?? null,
             ]);
         });
 
@@ -91,34 +104,40 @@ class StockMovementController extends Controller
     public function createKeluar()
     {
         $items = Item::orderBy('nama_barang')->get();
-        return view('stock.keluar', compact('items'));
+        $divisions = Division::orderBy('nama')->get();
+        return view('stock.keluar', compact('items', 'divisions'));
     }
 
     public function storeKeluar(Request $request)
     {
         $validated = $request->validate([
             'item_id'    => 'required|exists:items,id',
+            'division_id' => 'required|exists:divisions,id',
             'jumlah'     => 'required|integer|min:1',
             'tanggal'    => 'required|date',
             'keterangan' => 'nullable|string',
         ]);
 
         DB::transaction(function () use ($validated) {
-            $item = Item::lockForUpdate()->findOrFail($validated['item_id']);
+            $stock = ItemDivisionStock::lockForUpdate()
+                ->where('item_id', $validated['item_id'])
+                ->where('division_id', $validated['division_id'])
+                ->first();
 
-            if ($item->stok_terkini < $validated['jumlah']) {
-                abort(400, 'Stok tidak mencukupi.');
+            if (!$stock || $stock->stok_terkini < $validated['jumlah']) {
+                abort(400, 'Stok pada divisi ini tidak mencukupi.');
             }
 
-            $item->decrement('stok_terkini', $validated['jumlah']);
+            $stock->decrement('stok_terkini', $validated['jumlah']);
 
             StockMovement::create([
-                'item_id'    => $item->id,
-                'jenis'      => 'keluar',
-                'jumlah'     => $validated['jumlah'],
-                'tanggal'    => $validated['tanggal'],
-                'user_id'    => Auth::id(),
-                'keterangan' => $validated['keterangan'] ?? null,
+                'item_id'     => $validated['item_id'],
+                'division_id' => $validated['division_id'],
+                'jenis'       => 'keluar',
+                'jumlah'      => $validated['jumlah'],
+                'tanggal'     => $validated['tanggal'],
+                'user_id'     => Auth::id(),
+                'keterangan'  => $validated['keterangan'] ?? null,
             ]);
         });
 

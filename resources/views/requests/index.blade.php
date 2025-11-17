@@ -8,7 +8,7 @@
     <div class="py-6">
         <div class="max-w-6xl mx-auto sm:px-6 lg:px-8">
 
-            {{-- Flash message (kalau nanti diperlukan) --}}
+            {{-- Flash message --}}
             @if (session('success'))
                 <div class="mb-4 p-3 rounded bg-green-100 text-green-800 text-sm">
                     {{ session('success') }}

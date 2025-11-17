@@ -15,4 +15,16 @@ class Item extends Model
         'stok_terkini',
         'catatan',
     ];
+
+    public function divisionStocks()
+    {
+        return $this->hasMany(\App\Models\ItemDivisionStock::class);
+    }
+
+    public function divisions()
+    {
+        return $this->belongsToMany(\App\Models\Division::class, 'item_division_stocks')
+            ->withPivot('stok_terkini')
+            ->withTimestamps();
+    }
 }
