@@ -1,118 +1,79 @@
-{{-- resources/views/items/index.blade.php --}}
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-100 leading-tight">
-            Master ATK
-        </h2>
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+            <div>
+                <h2 class="font-semibold text-xl text-gray-100 leading-tight">
+                    Master Barang
+                </h2>
+                <p class="text-xs text-gray-400">Data inventaris & stok per divisi</p>
+            </div>
+            <a href="{{ route('items.create') }}"
+                class="inline-flex items-center px-3 py-2 rounded-md text-xs font-semibold bg-emerald-500 hover:bg-emerald-600 text-white">
+                + Tambah Barang
+            </a>
+        </div>
     </x-slot>
 
-    <div class="py-6">
-        <div class="max-w-6xl mx-auto sm:px-4 lg:px-6 ">
+    <div class="py-6 bg-slate-950 min-h-screen">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
 
-            {{-- Pesan sukses / error --}}
-            @if (session('success'))
-                <div class="mb-4 p-3 rounded bg-green-100 text-green-800 text-sm">
-                    {{ session('success') }}
-                </div>
-            @endif
-
-            @if (session('error'))
-                <div class="mb-4 p-3 rounded bg-red-100 text-red-800 text-sm">
-                    {{ session('error') }}
-                </div>
-            @endif
-
-            <div class="bg-white shadow-sm py-4 sm:rounded-lg overflow-hidden">
-                {{-- Header card: judul + tombol tambah --}}
-                <div
-                    class="px-4 py-3 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                    <div>
-                        <h3 class="text-base font-semibold text-gray-800">
-                            Daftar Master ATK
-                        </h3>
-                        <p class="text-xs text-gray-500">
-                            Kelola data barang ATK: kode, nama, kategori, satuan, dan stok terkini.
-                        </p>
+            {{-- Search --}}
+            <form method="GET" action="{{ route('items.index') }}"
+                class="bg-slate-900 border border-slate-700/80 rounded-xl p-4 mb-2">
+                <div class="flex flex-col sm:flex-row gap-3 sm:items-center">
+                    <div class="flex-1">
+                        <input type="text" name="q" value="{{ request('q') }}"
+                            placeholder="Cari kode / nama / kategori barang..."
+                            class="w-full rounded-md border-slate-700 bg-slate-900 text-sm text-slate-100 placeholder-slate-500 focus:border-emerald-500 focus:ring-emerald-500">
                     </div>
-
-                    <a href="{{ route('items.create') }}"
-                        class="inline-flex items-center px-4 py-2 bg-emerald-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-emerald-700">
-                        + Tambah Barang
-                    </a>
+                    <button
+                        class="px-4 py-2 rounded-md bg-emerald-500 text-xs font-semibold text-white hover:bg-emerald-600">
+                        Cari
+                    </button>
                 </div>
+            </form>
 
-                {{-- Area pencarian --}}
-                <div class="px-4 py-3 border-b border-gray-200 bg-gray-50">
-                    <form method="GET" action="{{ route('items.index') }}"
-                        class="flex flex-col sm:flex-row gap-2 sm:items-center">
-                        <label class="sr-only" for="q">Pencarian</label>
-                        <input type="text" name="q" id="q" value="{{ request('q') }}"
-                            placeholder="Cari kode / nama barang"
-                            class="w-full sm:w-64 rounded-md border-gray-300 shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500">
-                        <button type="submit"
-                            class="inline-flex items-center justify-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700">
-                            Cari
-                        </button>
-                    </form>
+            {{-- Tabel --}}
+            <div class="bg-slate-900 border border-slate-700/80 rounded-xl overflow-hidden">
+                <div class="px-4 py-3 border-b border-slate-800 flex items-center justify-between">
+                    <p class="text-xs text-slate-400">
+                        Menampilkan {{ $items->firstItem() }}–{{ $items->lastItem() }} dari {{ $items->total() }} barang
+                    </p>
                 </div>
-
-                {{-- Tabel data --}}
                 <div class="overflow-x-auto">
                     <table class="min-w-full text-sm">
                         <thead>
-                            <tr class="bg-gray-100 text-gray-700">
-                                <th class="px-4 py-2 border-b text-left text-xs font-semibold uppercase tracking-wider">
-                                    Kode</th>
-                                <th class="px-4 py-2 border-b text-left text-xs font-semibold uppercase tracking-wider">
-                                    Nama</th>
-                                <th class="px-4 py-2 border-b text-left text-xs font-semibold uppercase tracking-wider">
-                                    Kategori</th>
-                                <th class="px-4 py-2 border-b text-left text-xs font-semibold uppercase tracking-wider">
-                                    Satuan</th>
-                                <th
-                                    class="px-4 py-2 border-b text-right text-xs font-semibold uppercase tracking-wider">
-                                    Stok Total</th>
-                                <th
-                                    class="px-4 py-2 border-b text-right text-xs font-semibold uppercase tracking-wider">
-                                    Stok per Divisi</th>
-                                <th
-                                    class="px-4 py-2 border-b text-center text-xs font-semibold uppercase tracking-wider">
-                                    Pinjam?</th>
-                                <th
-                                    class="px-4 py-2 border-b text-center text-xs font-semibold uppercase tracking-wider">
-                                    Aksi</th>
+                            <tr
+                                class="bg-slate-900/80 text-slate-300 border-b border-slate-800 text-xs uppercase tracking-wide">
+                                <th class="px-3 py-2 text-left">Kode</th>
+                                <th class="px-3 py-2 text-left">Nama</th>
+                                <th class="px-3 py-2 text-left">Kategori</th>
+                                <th class="px-3 py-2 text-left">Satuan</th>
+                                <th class="px-3 py-2 text-right">Stok Total</th>
+                                <th class="px-3 py-2 text-left">Stok per Divisi</th>
+                                <th class="px-3 py-2 text-center">Pinjam?</th>
+                                <th class="px-3 py-2 text-center">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody class="bg-white">
-                            @forelse ($items as $item)
+                        <tbody class="divide-y divide-slate-800">
+                            @forelse($items as $item)
                                 @php
                                     $totalStok = $item->divisionStocks->sum('stok_terkini');
                                 @endphp
-                                <tr class="hover:bg-gray-50">
-                                    <td class="px-4 py-2 border-b align-top text-gray-800">
-                                        <span class="font-semibold">{{ $item->kode_barang }}</span>
+                                <tr class="hover:bg-slate-800/70">
+                                    <td class="px-3 py-2 text-slate-100 font-semibold">{{ $item->kode_barang }}</td>
+                                    <td class="px-3 py-2 text-slate-50">{{ $item->nama_barang }}</td>
+                                    <td class="px-3 py-2 text-slate-300">{{ $item->item_category ?? '-' }}</td>
+                                    <td class="px-3 py-2 text-slate-300">{{ $item->satuan }}</td>
+                                    <td class="px-3 py-2 text-right text-slate-50 font-semibold">{{ $totalStok }}
                                     </td>
-                                    <td class="px-4 py-2 border-b align-top text-gray-800">
-                                        {{ $item->nama_barang }}
-                                    </td>
-                                    <td class="px-4 py-2 border-b align-top text-gray-700">
-                                        {{ $item->item_category ?? '-' }}
-                                    </td>
-                                    <td class="px-4 py-2 border-b align-top text-gray-700">
-                                        {{ $item->satuan }}
-                                    </td>
-                                    <td class="px-4 py-2 border-b align-top text-right">
-                                        <span class="font-semibold text-gray-900">
-                                            {{ $totalStok }}
-                                        </span>
-                                    </td>
-                                    <td class="px-4 py-2 border-b align-top">
+                                    <td class="px-3 py-2">
                                         @if ($item->divisionStocks->isNotEmpty())
                                             <div class="flex flex-wrap gap-1">
                                                 @foreach ($item->divisionStocks as $ds)
                                                     @if ($ds->division)
                                                         <span
-                                                            class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] bg-slate-100 text-slate-700 border border-slate-200">
+                                                            class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] bg-slate-800 text-slate-200 border border-slate-700">
                                                             {{ $ds->division->nama }}:
                                                             <span
                                                                 class="ml-1 font-semibold">{{ $ds->stok_terkini }}</span>
@@ -121,36 +82,33 @@
                                                 @endforeach
                                             </div>
                                         @else
-                                            <span class="text-xs text-gray-400 italic">
-                                                Belum ada stok per divisi
-                                            </span>
+                                            <span class="text-xs text-slate-500 italic">Belum ada stok per divisi</span>
                                         @endif
                                     </td>
-                                    <td class="px-4 py-2 border-b align-top text-center">
+                                    <td class="px-3 py-2 text-center">
                                         @if ($item->can_be_loaned)
                                             <span
-                                                class="inline-flex px-2 py-0.5 rounded-full text-[11px] bg-emerald-100 text-emerald-800 border border-emerald-200">
+                                                class="inline-flex px-2 py-0.5 rounded-full text-[11px] bg-emerald-500/15 text-emerald-300 border border-emerald-500/40">
                                                 Bisa
                                             </span>
                                         @else
                                             <span
-                                                class="inline-flex px-2 py-0.5 rounded-full text-[11px] bg-slate-100 text-slate-500 border border-slate-200">
+                                                class="inline-flex px-2 py-0.5 rounded-full text-[11px] bg-slate-800 text-slate-400 border border-slate-700">
                                                 Tidak
                                             </span>
                                         @endif
                                     </td>
-                                    <td class="px-4 py-2 border-b align-top text-center">
-                                        <div class="inline-flex items-center gap-3">
+                                    <td class="px-3 py-2 text-center">
+                                        <div class="inline-flex gap-3 text-xs">
                                             <a href="{{ route('items.edit', $item) }}"
-                                                class="text-xs font-semibold text-indigo-600 hover:text-indigo-800">
+                                                class="text-emerald-300 hover:text-emerald-200">
                                                 Edit
                                             </a>
                                             <form action="{{ route('items.destroy', $item) }}" method="POST"
                                                 onsubmit="return confirm('Yakin ingin menghapus barang ini?');">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit"
-                                                    class="text-xs font-semibold text-red-600 hover:text-red-800">
+                                                <button type="submit" class="text-rose-400 hover:text-rose-300">
                                                     Hapus
                                                 </button>
                                             </form>
@@ -159,7 +117,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" class="px-4 py-4 text-center text-sm text-gray-500">
+                                    <td colspan="8" class="px-3 py-4 text-center text-sm text-slate-400">
                                         Belum ada data barang.
                                     </td>
                                 </tr>
@@ -167,15 +125,10 @@
                         </tbody>
                     </table>
                 </div>
-
-            </div>
-
-            {{-- Pagination (kalau pakai paginate di controller) --}}
-            @if (method_exists($items, 'links'))
-                <div class="mt-4">
+                <div class="px-4 py-3 border-t border-slate-800">
                     {{ $items->links() }}
                 </div>
-            @endif
+            </div>
         </div>
     </div>
 </x-app-layout>

@@ -8,6 +8,7 @@ use App\Http\Controllers\LoanController;
 use App\Http\Controllers\UserManagementController;
 use App\Http\Controllers\AtkRequestController;
 use App\Http\Controllers\DivisionController;
+use App\Http\Controllers\DashboardController;
 
 Route::get('/', function () {
     return view('landing');
@@ -24,9 +25,10 @@ Route::get('/register', function () {
 Route::get('/ajax/divisions-by-item/{item}', [LoanController::class, 'getDivisionsByItem'])
     ->name('ajax.divisions.byItem');
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])
+        ->name('dashboard');
+});
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

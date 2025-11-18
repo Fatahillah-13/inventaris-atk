@@ -1,193 +1,139 @@
-{{-- resources/views/dashboard.blade.php --}}
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-white leading-tight">
-            Dashboard Inventaris HRD
-        </h2>
-    </x-slot>
-
-    <div class="py-8">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-
-            {{-- Sapaan singkat --}}
-            <div class="mb-6">
-                <p class="text-white text-sm">
-                    Selamat datang, <span class="font-semibold">{{ auth()->user()->name }}</span>.
-                </p>
-                <p class="text-gray-300 text-xs">
-                    Pilih menu di bawah untuk mengelola inventaris HRD.
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+            <div>
+                <h2 class="font-semibold text-xl text-gray-100 leading-tight">
+                    Dashboard SEDIA
+                </h2>
+                <p class="text-xs text-gray-400">
+                    Ringkasan inventaris & aktivitas terbaru
                 </p>
             </div>
+        </div>
+    </x-slot>
 
-            {{-- Grid menu utama --}}
-            @php
-                $role = auth()->user()->role;
-            @endphp
+    <div class="py-6 bg-slate-950 min-h-screen">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {{-- Ringkasan angka --}}
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-slate-900 border border-slate-700/80 rounded-xl p-4">
+                    <p class="text-xs text-slate-400 uppercase tracking-wide mb-1">Total Barang</p>
+                    <p class="text-2xl font-semibold text-slate-50">{{ $totalItems ?? '-' }}</p>
+                </div>
+                <div class="bg-slate-900 border border-slate-700/80 rounded-xl p-4">
+                    <p class="text-xs text-slate-400 uppercase tracking-wide mb-1">Peminjaman Aktif</p>
+                    <p class="text-2xl font-semibold text-emerald-400">{{ $activeLoans ?? '-' }}</p>
+                </div>
+                <div class="bg-slate-900 border border-slate-700/80 rounded-xl p-4">
+                    <p class="text-xs text-slate-400 uppercase tracking-wide mb-1">Permintaan Hari Ini</p>
+                    <p class="text-2xl font-semibold text-sky-400">{{ $todayRequests ?? '-' }}</p>
+                </div>
+                <div class="bg-slate-900 border border-slate-700/80 rounded-xl p-4">
+                    <p class="text-xs text-slate-400 uppercase tracking-wide mb-1">Stok Menipis</p>
+                    <p class="text-2xl font-semibold text-rose-400">{{ $lowStocks ?? '-' }}</p>
+                </div>
+            </div>
 
-                {{-- Card: Master Barang --}}
+            {{-- Quick actions --}}
+            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {{-- Master Barang --}}
                 <a href="{{ route('items.index') }}"
-                    class="block bg-white overflow-hidden shadow-sm rounded-lg border border-gray-200 hover:shadow-md transition">
-                    <div class="p-5">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-1">
-                            Master Barang
-                        </h3>
-                        <p class="text-sm text-gray-500 mb-3">
-                            Lihat dan kelola data barang HRD (kode, nama, kategori, stok).
-                        </p>
-                        <span class="inline-flex items-center text-xs font-semibold text-indigo-600">
-                            Buka Halaman
-                            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 5l7 7-7 7" />
-                            </svg>
-                        </span>
+                    class="bg-slate-900 border border-slate-700/80 rounded-xl p-4 flex items-center gap-3 hover:border-emerald-400 hover:bg-slate-900/90 transition">
+                    <div class="w-9 h-9 rounded-lg bg-slate-800 flex items-center justify-center">
+                        <span class="text-sm">📦</span>
+                    </div>
+                    <div>
+                        <p class="text-sm font-semibold text-slate-100">Master Barang</p>
+                        <p class="text-xs text-slate-400">Kelola data barang & stok</p>
                     </div>
                 </a>
 
-                {{-- Card: Stok Masuk --}}
-                <a href="{{ route('stock.masuk.create') }}"
-                    class="block bg-white overflow-hidden shadow-sm rounded-lg border border-gray-200 hover:shadow-md transition">
-                    <div class="p-5">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-1">
-                            Barang Masuk
-                        </h3>
-                        <p class="text-sm text-gray-500 mb-3">
-                            Catat penambahan stok barang yang baru datang ke gudang.
-                        </p>
-                        <span class="inline-flex items-center text-xs font-semibold text-green-600">
-                            Input Barang Masuk
-                            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 5l7 7-7 7" />
-                            </svg>
-                        </span>
-                    </div>
-                </a>
-
-                {{-- Card: Stok Keluar --}}
-                <a href="{{ route('stock.keluar.create') }}"
-                    class="block bg-white overflow-hidden shadow-sm rounded-lg border border-gray-200 hover:shadow-md transition">
-                    <div class="p-5">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-1">
-                            Barang Keluar
-                        </h3>
-                        <p class="text-sm text-gray-500 mb-3">
-                            Catat barang ATK yang keluar untuk dipakai karyawan/divisi.
-                        </p>
-                        <span class="inline-flex items-center text-xs font-semibold text-red-600">
-                            Input Barang Keluar
-                            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 5l7 7-7 7" />
-                            </svg>
-                        </span>
-                    </div>
-                </a>
-
-                {{-- Card: Riwayat Stok --}}
+                {{-- Riwayat Stok --}}
                 <a href="{{ route('stock.index') }}"
-                    class="block bg-white overflow-hidden shadow-sm rounded-lg border border-gray-200 hover:shadow-md transition">
-                    <div class="p-5">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-1">
-                            Riwayat Stok
-                        </h3>
-                        <p class="text-sm text-gray-500 mb-3">
-                            Lihat histori barang masuk dan keluar untuk semua item.
-                        </p>
-                        <span class="inline-flex items-center text-xs font-semibold text-gray-700">
-                            Lihat Riwayat
-                            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 5l7 7-7 7" />
-                            </svg>
-                        </span>
+                    class="bg-slate-900 border border-slate-700/80 rounded-xl p-4 flex items-center gap-3 hover:border-emerald-400 hover:bg-slate-900/90 transition">
+                    <div class="w-9 h-9 rounded-lg bg-slate-800 flex items-center justify-center">
+                        <span class="text-sm">📊</span>
+                    </div>
+                    <div>
+                        <p class="text-sm font-semibold text-slate-100">Riwayat Stok</p>
+                        <p class="text-xs text-slate-400">Barang masuk & keluar</p>
                     </div>
                 </a>
 
-                {{-- (Opsional) Card lain untuk nanti: Permintaan ATK, Laporan, dll. --}}
-                <a href="{{ route('requests.index') }}"
-                    class="block bg-white overflow-hidden shadow-sm rounded-lg border border-gray-200 hover:shadow-md transition">
-                    <div class="p-5">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-1">
-                            Permintaan ATK
-                        </h3>
-                        <p class="text-sm text-gray-500 mb-3">
-                            Lihat daftar permintaan ATK yang diajukan karyawan.
-                        </p>
-                        <span class="inline-flex items-center text-xs font-semibold text-gray-700">
-                            Buka Daftar Permintaan
-                            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 5l7 7-7 7" />
-                            </svg>
-                        </span>
-                    </div>
-                </a>
-
-                {{-- Card: Peminjaman ATK (internal list) --}}
+                {{-- Peminjaman --}}
                 <a href="{{ route('loans.index') }}"
-                    class="block bg-white overflow-hidden shadow-sm rounded-lg border border-gray-200 hover:shadow-md transition">
-                    <div class="p-5">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-1">
-                            Peminjaman Barang
-                        </h3>
-                        <p class="text-sm text-gray-500 mb-3">
-                            Lihat dan kelola daftar peminjaman barang HRD.
-                        </p>
-                        <span class="inline-flex items-center text-xs font-semibold text-gray-700">
-                            Buka Daftar Peminjaman
-                            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 5l7 7-7 7" />
-                            </svg>
-                        </span>
+                    class="bg-slate-900 border border-slate-700/80 rounded-xl p-4 flex items-center gap-3 hover:border-emerald-400 hover:bg-slate-900/90 transition">
+                    <div class="w-9 h-9 rounded-lg bg-slate-800 flex items-center justify-center">
+                        <span class="text-sm">🔁</span>
+                    </div>
+                    <div>
+                        <p class="text-sm font-semibold text-slate-100">Peminjaman</p>
+                        <p class="text-xs text-slate-400">Pantau status peminjaman</p>
                     </div>
                 </a>
 
-                @if ($role === 'admin')
-                    {{-- Card Manajemen User --}}
-                    <a href="{{ route('users.index') }}"
-                        class="block bg-white overflow-hidden shadow-sm rounded-lg border border-gray-200 hover:shadow-md transition">
-                        <div class="p-5">
-                            <h3 class="text-lg font-semibold text-gray-800 mb-1">
-                                Manajemen User
-                            </h3>
-                            <p class="text-sm text-gray-500 mb-3">
-                                Tambah, edit, dan hapus akun pengguna sistem inventaris.
-                            </p>
-                            <span class="inline-flex items-center text-xs font-semibold text-gray-700">
-                                Buka Manajemen User
-                                <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M9 5l7 7-7 7" />
-                                </svg>
-                            </span>
-                        </div>
-                    </a>
+                {{-- Permintaan ATK --}}
+                <a href="{{ route('requests.index') }}"
+                    class="bg-slate-900 border border-slate-700/80 rounded-xl p-4 flex items-center gap-3 hover:border-emerald-400 hover:bg-slate-900/90 transition">
+                    <div class="w-9 h-9 rounded-lg bg-slate-800 flex items-center justify-center">
+                        <span class="text-sm">📝</span>
+                    </div>
+                    <div>
+                        <p class="text-sm font-semibold text-slate-100">Permintaan ATK</p>
+                        <p class="text-xs text-slate-400">Daftar permintaan dari karyawan</p>
+                    </div>
+                </a>
+            </div>
 
-                    {{-- Card Manajemen Divisi --}}
-                    <a href="{{ route('divisions.index') }}"
-                        class="block bg-white overflow-hidden shadow-sm rounded-lg border border-gray-200 hover:shadow-md transition">
-                        <div class="p-5">
-                            <h3 class="text-lg font-semibold text-gray-800 mb-1">
-                                Manajemen Divisi
-                            </h3>
-                            <p class="text-sm text-gray-500 mb-3">
-                                Tambah, edit, dan hapus divisi.
-                            </p>
-                            <span class="inline-flex items-center text-xs font-semibold text-gray-700">
-                                Buka Manajemen Divisi
-                                <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M9 5l7 7-7 7" />
-                                </svg>
-                            </span>
+            {{-- Aktivitas terbaru (contoh stok movements) --}}
+            <div class="bg-slate-900 border border-slate-700/80 rounded-xl overflow-hidden">
+                <div class="px-5 py-3 border-b border-slate-800 flex items-center justify-between">
+                    <h3 class="text-sm font-semibold text-slate-100">Aktivitas Terbaru</h3>
+                    <span class="text-[11px] text-slate-500">
+                        Menampilkan 3 aktivitas terakhir
+                    </span>
+                </div>
+                <div class="divide-y divide-slate-800">
+                    @forelse($recentMovements ?? [] as $m)
+                        <div class="px-5 py-3 flex items-start justify-between text-sm">
+                            <div>
+                                <p class="font-medium text-slate-100">
+                                    {{ ucfirst($m->jenis) }} – {{ $m->item->nama_barang ?? '-' }}
+                                </p>
+                                <p class="text-xs text-slate-400">
+                                    Divisi: {{ $m->division->nama ?? '-' }} ·
+                                    {{ $m->tanggal }} ·
+                                    oleh {{ $m->user->name ?? 'Sistem' }}
+                                </p>
+                                @if ($m->keterangan)
+                                    <p class="text-[11px] text-slate-500 mt-1">
+                                        {{ $m->keterangan }}
+                                    </p>
+                                @endif
+                            </div>
+                            <div class="text-right">
+                                <p class="font-semibold text-slate-50">{{ $m->jumlah }}</p>
+                                <p class="text-[11px] text-slate-500">{{ $m->item->satuan ?? '' }}</p>
+                            </div>
                         </div>
-                    </a>
-                @endif
+                    @empty
+                        <div class="px-5 py-4 text-sm text-slate-400">
+                            Belum ada aktivitas terbaru.
+                        </div>
+                    @endforelse
+                </div>
 
+                {{-- Tombol lihat semua --}}
+                <div class="px-5 py-3 border-t border-slate-800 flex justify-end">
+                    <a href="{{ route('stock.index') }}"
+                        class="inline-flex items-center gap-1 text-xs font-semibold text-emerald-300 hover:text-emerald-200">
+                        Lihat semua aktivitas stok
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </a>
+                </div>
             </div>
         </div>
     </div>
