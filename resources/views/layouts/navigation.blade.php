@@ -11,8 +11,12 @@
                 </div>
 
                 @php
-                    $adminActive = request()->routeIs('users.*') || request()->routeIs('divisions.*');
+                    $adminActive =
+                        request()->routeIs('users.*') ||
+                        request()->routeIs('divisions.*') ||
+                        request()->routeIs('item-categories.*');
                 @endphp
+
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
@@ -54,6 +58,10 @@
 
                             <x-dropdown-link :href="route('divisions.index')">
                                 {{ __('Divisions') }}
+                            </x-dropdown-link>
+
+                            <x-dropdown-link :href="route('item-categories.index')">
+                                {{ __('Item Categories') }}
                             </x-dropdown-link>
                         @endif
 
@@ -103,6 +111,10 @@
 
                 <x-responsive-nav-link :href="route('divisions.index')" :active="request()->routeIs('divisions.*')">
                     {{ __('Divisi') }}
+                </x-responsive-nav-link>
+
+                <x-responsive-nav-link :href="route('item-categories.index')" :active="request()->routeIs('item-categories.*')">
+                    {{ __('Kategori Barang') }}
                 </x-responsive-nav-link>
             @endif
         </div>

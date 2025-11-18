@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Item;
 use Illuminate\Http\Request;
+use App\Models\ItemCategory;
 
 class ItemController extends Controller
 {
@@ -33,7 +34,11 @@ class ItemController extends Controller
 
     public function create()
     {
-        return view('items.create');
+        $categories = ItemCategory::where('is_active', true)
+            ->orderBy('nama')
+            ->get();
+
+        return view('items.create', compact('categories'));
     }
 
     public function store(Request $request)
@@ -41,23 +46,36 @@ class ItemController extends Controller
         $validated = $request->validate([
             'kode_barang'   => 'required|unique:items,kode_barang',
             'nama_barang'   => 'required',
-            'item_category' => 'nullable|string',
+            'category_id'   => 'nullable|exists:item_categories,id',
             'satuan'        => 'required',
-            'stok_awal'     => 'required|integer|min:0',
             'catatan'       => 'nullable|string',
             'can_be_loaned' => 'nullable|boolean',
         ]);
 
-        $validated['stok_terkini'] = $validated['stok_awal'];
+        $item = Item::create([
+            'kode_barang'   => $validated['kode_barang'],
+            'nama_barang'   => $validated['nama_barang'],
+            'category_id'   => $validated['category_id'],
+            // kalau kamu masih ingin isi item_category string:
+            'item_category' => ItemCategory::find($validated['category_id'])->kode ?? null,
+            'satuan'        => $validated['satuan'],
+            'stok_awal'     => 0,
+            'stok_terkini'  => 0,
+            'catatan'       => $validated['catatan'] ?? null,
+            'can_be_loaned' => $request->has('can_be_loaned'),
+        ]);
 
-        Item::create($validated);
-
-        return redirect()->route('items.index')->with('success', 'Barang berhasil ditambahkan.');
+        return redirect()->route('items.index')
+            ->with('success', 'Barang baru berhasil ditambahkan.');
     }
 
     public function edit(Item $item)
     {
-        return view('items.edit', compact('item'));
+        $categories = ItemCategory::where('is_active', true)
+            ->orderBy('nama')
+            ->get();
+
+        return view('items.edit', compact('item', 'categories'));
     }
 
     public function update(Request $request, Item $item)
@@ -65,16 +83,25 @@ class ItemController extends Controller
         $validated = $request->validate([
             'kode_barang'   => 'required|unique:items,kode_barang,' . $item->id,
             'nama_barang'   => 'required',
-            'item_category' => 'nullable|string',
+            'category_id'   => 'nullable|exists:item_categories,id',
             'satuan'        => 'required',
             // 'stok_awal'     => 'required|integer|min:0',
             'catatan'       => 'nullable|string',
             'can_be_loaned' => 'nullable|boolean',
         ]);
 
-        $item->update($validated);
+        $item->update([
+            'kode_barang'   => $validated['kode_barang'],
+            'nama_barang'   => $validated['nama_barang'],
+            'category_id'   => $validated['category_id'],
+            'item_category' => ItemCategory::find($validated['category_id'])->kode ?? $item->item_category,
+            'satuan'        => $validated['satuan'],
+            'catatan'       => $validated['catatan'] ?? null,
+            'can_be_loaned' => $request->has('can_be_loaned'),
+        ]);
 
-        return redirect()->route('items.index')->with('success', 'Barang berhasil diperbarui.');
+        return redirect()->route('items.index')
+            ->with('success', 'Data barang berhasil diperbarui.');
     }
 
     public function destroy(Item $item)

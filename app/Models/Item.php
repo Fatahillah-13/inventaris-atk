@@ -9,6 +9,7 @@ class Item extends Model
     protected $fillable = [
         'kode_barang',
         'nama_barang',
+        'category_id',
         'item_category',
         'satuan',
         'stok_awal',
@@ -27,5 +28,10 @@ class Item extends Model
         return $this->belongsToMany(\App\Models\Division::class, 'item_division_stocks')
             ->withPivot('stok_terkini')
             ->withTimestamps();
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(ItemCategory::class, 'category_id');
     }
 }

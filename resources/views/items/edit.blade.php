@@ -53,13 +53,22 @@
 
                     {{-- Kategori --}}
                     <div class="mb-4">
-                        <label for="item_category" class="block text-sm font-medium text-gray-700">
+                        <label class="block text-sm font-medium text-gray-700">
                             Kategori
                         </label>
-                        <input type="text" name="item_category" id="item_category"
-                            value="{{ old('item_category', $item->item_category) }}"
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
-                            placeholder="Contoh: Pulpen, Kertas, Map">
+                        <select name="category_id"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500"
+                            required>
+                            @foreach ($categories as $cat)
+                                <option value="{{ $cat->id }}"
+                                    {{ old('category_id', $item->category_id) == $cat->id ? 'selected' : '' }}>
+                                    {{ $cat->kode }} — {{ $cat->nama }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <p class="mt-1 text-xs text-gray-500">
+                            Contoh: ATK (Alat Tulis Kantor), TECH (Perangkat Teknologi), TOOLS, dll.
+                        </p>
                     </div>
 
                     {{-- Satuan --}}

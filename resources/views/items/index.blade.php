@@ -7,10 +7,20 @@
                 </h2>
                 <p class="text-xs text-gray-400">Data inventaris & stok per divisi</p>
             </div>
-            <a href="{{ route('items.create') }}"
-                class="inline-flex items-center px-3 py-2 rounded-md text-xs font-semibold bg-emerald-500 hover:bg-emerald-600 text-white">
-                + Tambah Barang
-            </a>
+            <div class="flex flex-wrap gap-2">
+                <a href="{{ route('stock.masuk.create') }}"
+                    class="inline-flex items-center px-3 py-2 rounded-md text-xs font-semibold bg-blue-500 hover:bg-blue-600 text-white">
+                    + Stok Masuk
+                </a>
+                <a href="{{ route('stock.keluar.create') }}"
+                    class="inline-flex items-center px-3 py-2 rounded-md text-xs font-semibold bg-red-500 hover:bg-red-600 text-white">
+                    - Stok Keluar
+                </a>
+                <a href="{{ route('items.create') }}"
+                    class="inline-flex items-center px-3 py-2 rounded-md text-xs font-semibold bg-emerald-500 hover:bg-emerald-600 text-white">
+                    + Tambah Barang
+                </a>
+            </div>
         </div>
     </x-slot>
 
@@ -63,7 +73,7 @@
                                 <tr class="hover:bg-slate-800/70">
                                     <td class="px-3 py-2 text-slate-100 font-semibold">{{ $item->kode_barang }}</td>
                                     <td class="px-3 py-2 text-slate-50">{{ $item->nama_barang }}</td>
-                                    <td class="px-3 py-2 text-slate-300">{{ $item->item_category ?? '-' }}</td>
+                                    <td class="px-3 py-2 text-slate-300">{{ $item->category->kode ?? $item->item_category ?? '-' }}</td>
                                     <td class="px-3 py-2 text-slate-300">{{ $item->satuan }}</td>
                                     <td class="px-3 py-2 text-right text-slate-50 font-semibold">{{ $totalStok }}
                                     </td>

@@ -9,6 +9,7 @@ use App\Http\Controllers\UserManagementController;
 use App\Http\Controllers\AtkRequestController;
 use App\Http\Controllers\DivisionController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ItemCategoryController;
 
 Route::get('/', function () {
     return view('landing');
@@ -85,4 +86,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
     // Manajemen divisi
     Route::resource('divisions', DivisionController::class)->except(['show']);
+
+    // Manajemen kategori barang
+    Route::resource('item-categories', ItemCategoryController::class)->except(['show']);
 });
