@@ -8,6 +8,7 @@ class StockMovement extends Model
 {
     protected $fillable = [
         'item_id',
+        'division_id',
         'jenis',
         'jumlah',
         'tanggal',
@@ -23,5 +24,10 @@ class StockMovement extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function division()
+    {
+        return $this->belongsTo(\App\Models\Division::class);
     }
 }

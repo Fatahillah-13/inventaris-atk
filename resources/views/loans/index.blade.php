@@ -48,8 +48,8 @@
 
                     <div class="flex gap-2">
                         {{-- Shortcut ke form publik (opsional) --}}
-                        @if (Route::has('public.requests.create'))
-                            <a href="{{ route('public.requests.create') }}" target="_blank"
+                        @if (Route::has('public.loans.create'))
+                            <a href="{{ route('public.loans.create') }}" target="_blank"
                                 class="inline-flex items-center px-3 py-2 bg-slate-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-slate-900">
                                 Buka Form Peminjaman
                             </a>

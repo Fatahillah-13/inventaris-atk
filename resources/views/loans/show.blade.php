@@ -77,6 +77,26 @@
                         @endif
                     </div>
 
+                    {{-- Divisi sumber stok --}}
+                    <div>
+                        <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
+                            Divisi Sumber Stok
+                        </h3>
+                        @if ($loan->division)
+                            <div
+                                class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] bg-slate-100 text-slate-700 border border-slate-200">
+                                {{ $loan->division->nama }}
+                                @if ($loan->division->kode)
+                                    <span class="ml-1 text-slate-500">({{ $loan->division->kode }})</span>
+                                @endif
+                            </div>
+                        @else
+                            <span class="text-xs text-gray-400 italic">
+                                Divisi sumber stok belum tercatat.
+                            </span>
+                        @endif
+                    </div>
+
                     {{-- Jumlah & tanggal --}}
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <div>
@@ -178,6 +198,40 @@
                         </div>
                     </div>
                 </div>
+
+                {{-- Stok per divisi (saat ini) --}}
+                @if ($loan->item && $loan->item->divisionStocks->isNotEmpty())
+                    <div>
+                        <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
+                            Stok per Divisi (saat ini)
+                        </h3>
+
+                        @php
+                            $totalStok = $loan->item->divisionStocks->sum('stok_terkini');
+                        @endphp
+
+                        <div class="mb-1 text-xs text-gray-600">
+                            Total stok: <span class="font-semibold text-gray-900">{{ $totalStok }}</span>
+                            <span class="text-gray-400">
+                                @if ($loan->item->satuan)
+                                    ({{ $loan->item->satuan }})
+                                @endif
+                            </span>
+                        </div>
+
+                        <div class="flex flex-wrap gap-1">
+                            @foreach ($loan->item->divisionStocks as $ds)
+                                @if ($ds->division)
+                                    <span
+                                        class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] bg-slate-100 text-slate-700 border border-slate-200">
+                                        {{ $ds->division->nama }}:
+                                        <span class="ml-1 font-semibold">{{ $ds->stok_terkini }}</span>
+                                    </span>
+                                @endif
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
 
                 {{-- Footer aksi --}}
                 <div

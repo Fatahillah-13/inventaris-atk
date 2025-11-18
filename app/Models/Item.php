@@ -14,6 +14,7 @@ class Item extends Model
         'stok_awal',
         'stok_terkini',
         'catatan',
+        'can_be_loaned',
     ];
 
     public function divisionStocks()

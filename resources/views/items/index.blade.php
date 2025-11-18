@@ -71,7 +71,13 @@
                                     Satuan</th>
                                 <th
                                     class="px-4 py-2 border-b text-right text-xs font-semibold uppercase tracking-wider">
-                                    Stok Terkini</th>
+                                    Stok Total</th>
+                                <th
+                                    class="px-4 py-2 border-b text-right text-xs font-semibold uppercase tracking-wider">
+                                    Stok per Divisi</th>
+                                <th
+                                    class="px-4 py-2 border-b text-center text-xs font-semibold uppercase tracking-wider">
+                                    Pinjam?</th>
                                 <th
                                     class="px-4 py-2 border-b text-center text-xs font-semibold uppercase tracking-wider">
                                     Aksi</th>
@@ -79,6 +85,9 @@
                         </thead>
                         <tbody class="bg-white">
                             @forelse ($items as $item)
+                                @php
+                                    $totalStok = $item->divisionStocks->sum('stok_terkini');
+                                @endphp
                                 <tr class="hover:bg-gray-50">
                                     <td class="px-4 py-2 border-b align-top text-gray-800">
                                         <span class="font-semibold">{{ $item->kode_barang }}</span>
@@ -94,8 +103,41 @@
                                     </td>
                                     <td class="px-4 py-2 border-b align-top text-right">
                                         <span class="font-semibold text-gray-900">
-                                            {{ $item->stok_terkini }}
+                                            {{ $totalStok }}
                                         </span>
+                                    </td>
+                                    <td class="px-4 py-2 border-b align-top">
+                                        @if ($item->divisionStocks->isNotEmpty())
+                                            <div class="flex flex-wrap gap-1">
+                                                @foreach ($item->divisionStocks as $ds)
+                                                    @if ($ds->division)
+                                                        <span
+                                                            class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] bg-slate-100 text-slate-700 border border-slate-200">
+                                                            {{ $ds->division->nama }}:
+                                                            <span
+                                                                class="ml-1 font-semibold">{{ $ds->stok_terkini }}</span>
+                                                        </span>
+                                                    @endif
+                                                @endforeach
+                                            </div>
+                                        @else
+                                            <span class="text-xs text-gray-400 italic">
+                                                Belum ada stok per divisi
+                                            </span>
+                                        @endif
+                                    </td>
+                                    <td class="px-4 py-2 border-b align-top text-center">
+                                        @if ($item->can_be_loaned)
+                                            <span
+                                                class="inline-flex px-2 py-0.5 rounded-full text-[11px] bg-emerald-100 text-emerald-800 border border-emerald-200">
+                                                Bisa
+                                            </span>
+                                        @else
+                                            <span
+                                                class="inline-flex px-2 py-0.5 rounded-full text-[11px] bg-slate-100 text-slate-500 border border-slate-200">
+                                                Tidak
+                                            </span>
+                                        @endif
                                     </td>
                                     <td class="px-4 py-2 border-b align-top text-center">
                                         <div class="inline-flex items-center gap-3">
@@ -103,7 +145,6 @@
                                                 class="text-xs font-semibold text-indigo-600 hover:text-indigo-800">
                                                 Edit
                                             </a>
-
                                             <form action="{{ route('items.destroy', $item) }}" method="POST"
                                                 onsubmit="return confirm('Yakin ingin menghapus barang ini?');">
                                                 @csrf

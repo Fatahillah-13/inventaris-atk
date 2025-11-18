@@ -99,6 +99,19 @@
                         </p>
                     </div>
 
+                    @php
+                        $checkLoan = old('can_be_loaned', $item->can_be_loaned);
+                    @endphp
+
+                    <div class="flex items-center">
+                        <input id="can_be_loaned" name="can_be_loaned" type="checkbox" value="1"
+                            {{ $checkLoan ? 'checked' : '' }} class="h-4 w-4 text-indigo-600 border-gray-300 rounded">
+                        <label for="can_be_loaned" class="ml-2 block text-sm text-gray-700">
+                            Barang ini dapat dipinjam
+                        </label>
+                    </div>
+
+
                     {{-- Catatan --}}
                     <div class="mb-4">
                         <label for="catatan" class="block text-sm font-medium text-gray-700">

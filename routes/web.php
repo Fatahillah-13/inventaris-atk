@@ -21,6 +21,8 @@ Route::get('/register', function () {
     abort(404);
 });
 
+Route::get('/ajax/divisions-by-item/{item}', [LoanController::class, 'getDivisionsByItem'])
+    ->name('ajax.divisions.byItem');
 
 Route::get('/dashboard', function () {
     return view('dashboard');

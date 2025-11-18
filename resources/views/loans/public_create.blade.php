@@ -1,23 +1,19 @@
-{{-- resources/views/loans/public_create.blade.php --}}
 <x-guest-layout>
     <div class="max-w-xl mx-auto mt-10 bg-white shadow-sm rounded-lg p-6">
 
         <h1 class="text-xl font-semibold text-gray-800 mb-1">
-            Form Peminjaman ATK
+            Form Peminjaman Barang
         </h1>
         <p class="text-xs text-gray-500 mb-4">
-            Silakan isi data berikut untuk peminjaman alat tulis. Setelah mengirim form ini, harap datang ke bagian ATK
-            untuk pengambilan barang.
+            Silakan isi data berikut untuk peminjaman barang. Stok akan dikurangi dari divisi yang dipilih.
         </p>
 
-        {{-- Pesan sukses --}}
         @if (session('success'))
             <div class="mb-4 p-3 rounded bg-green-100 text-green-800 text-sm">
                 {{ session('success') }}
             </div>
         @endif
 
-        {{-- Error validasi --}}
         @if ($errors->any())
             <div class="mb-4 p-3 rounded bg-red-100 text-red-800 text-sm">
                 <div class="font-semibold mb-1">Terjadi kesalahan:</div>
@@ -34,97 +30,156 @@
 
             {{-- Nama Peminjam --}}
             <div>
-                <label for="peminjam" class="block text-sm font-medium text-gray-700">
+                <label class="block text-sm font-medium text-gray-700">
                     Nama Peminjam
                 </label>
-                <input type="text" name="peminjam" id="peminjam" value="{{ old('peminjam') }}"
-                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500"
-                    required>
+                <input type="text" name="peminjam" value="{{ old('peminjam') }}" required
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500">
             </div>
 
-            {{-- Departemen / Divisi --}}
+            {{-- Departemen / Divisi Peminjam (organisasional) --}}
             <div>
-                <label for="departemen" class="block text-sm font-medium text-gray-700">
-                    Departemen / Divisi
+                <label class="block text-sm font-medium text-gray-700">
+                    Departemen / Divisi Peminjam
                 </label>
-                <input type="text" name="departemen" id="departemen" value="{{ old('departemen') }}"
-                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500"
-                    required>
+                <input type="text" name="departemen" value="{{ old('departemen') }}" required
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500">
             </div>
 
-            {{-- Barang yang dipinjam --}}
+            {{-- Barang --}}
             <div>
-                <label for="item_id" class="block text-sm font-medium text-gray-700">
-                    Barang yang ingin dipinjam
+                <label class="block text-sm font-medium text-gray-700">
+                    Barang yang dipinjam
                 </label>
                 <select name="item_id" id="item_id"
                     class="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500"
                     required>
                     <option value="">-- Pilih Barang --</option>
                     @foreach ($items as $item)
-                        <option value="{{ $item->id }}" {{ old('item_id') == $item->id ? 'selected' : '' }}
-                            @if ($item->stok_terkini <= 0) disabled @endif>
+                        <option value="{{ $item->id }}" {{ old('item_id') == $item->id ? 'selected' : '' }}>
                             {{ $item->kode_barang }} - {{ $item->nama_barang }}
-                            (stok: {{ $item->stok_terkini }})
-                            @if ($item->stok_terkini <= 0)
-                                - HABIS
-                            @endif
                         </option>
                     @endforeach
                 </select>
+            </div>
+
+            {{-- Divisi Sumber Stok --}}
+            <div>
+                <label class="block text-sm font-medium text-gray-700">
+                    Divisi Sumber Stok
+                </label>
+                <select name="division_id" id="division_id"
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500"
+                    required>
+                    <option value="">-- Pilih Divisi Pemilik Stok --</option>
+                    {{-- @foreach ($divisions as $div)
+                        <option value="{{ $div->id }}" {{ old('division_id') == $div->id ? 'selected' : '' }}>
+                            {{ $div->nama }} @if ($div->kode)
+                                ({{ $div->kode }})
+                            @endif
+                        </option>
+                    @endforeach --}}
+                </select>
                 <p class="text-xs text-gray-400 mt-1">
-                    Barang dengan stok 0 tidak bisa dipinjam (ditandai HABIS).
+                    Stok akan dikurangi dari divisi yang dipilih di sini.
                 </p>
             </div>
 
             {{-- Jumlah --}}
             <div>
-                <label for="jumlah" class="block text-sm font-medium text-gray-700">
+                <label class="block text-sm font-medium text-gray-700">
                     Jumlah
                 </label>
-                <input type="number" name="jumlah" id="jumlah" min="1" value="{{ old('jumlah', 1) }}"
-                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500"
-                    required>
+                <input type="number" name="jumlah" min="1" value="{{ old('jumlah', 1) }}" required
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500">
             </div>
 
             {{-- Tanggal Pinjam --}}
             <div>
-                <label for="tanggal_pinjam" class="block text-sm font-medium text-gray-700">
+                <label class="block text-sm font-medium text-gray-700">
                     Tanggal Pinjam
                 </label>
-                <input type="date" name="tanggal_pinjam" id="tanggal_pinjam"
-                    value="{{ old('tanggal_pinjam', date('Y-m-d')) }}"
-                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500"
-                    required>
+                <input type="date" name="tanggal_pinjam" value="{{ old('tanggal_pinjam', date('Y-m-d')) }}" required
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500">
             </div>
 
             {{-- Tanggal Rencana Kembali --}}
             <div>
-                <label for="tanggal_rencana_kembali" class="block text-sm font-medium text-gray-700">
+                <label class="block text-sm font-medium text-gray-700">
                     Tanggal Rencana Kembali (opsional)
                 </label>
-                <input type="date" name="tanggal_rencana_kembali" id="tanggal_rencana_kembali"
-                    value="{{ old('tanggal_rencana_kembali') }}"
+                <input type="date" name="tanggal_rencana_kembali" value="{{ old('tanggal_rencana_kembali') }}"
                     class="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500">
             </div>
 
             {{-- Keterangan --}}
             <div>
-                <label for="keterangan" class="block text-sm font-medium text-gray-700">
+                <label class="block text-sm font-medium text-gray-700">
                     Keterangan (opsional)
                 </label>
-                <textarea name="keterangan" id="keterangan" rows="3"
+                <textarea name="keterangan" rows="3"
                     class="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500"
-                    placeholder="Contoh: Untuk meeting, proyek tertentu, dll.">{{ old('keterangan') }}</textarea>
+                    placeholder="Contoh: dipakai untuk training, presentasi, kegiatan tertentu, dll.">{{ old('keterangan') }}</textarea>
             </div>
 
-            {{-- Tombol --}}
             <div class="pt-2">
                 <button type="submit"
-                    class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700">
-                    Kirim Permintaan Peminjaman
+                    class="w-full inline-flex justify-center items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700">
+                    Kirim Peminjaman
                 </button>
             </div>
         </form>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const itemSelect = document.getElementById('item_id');
+            const divisionSelect = document.getElementById('division_id');
+
+            itemSelect.addEventListener('change', function() {
+                const itemId = this.value;
+
+                // reset division select
+                divisionSelect.innerHTML = '<option value="">Memuat divisi...</option>';
+
+                if (itemId === '') {
+                    divisionSelect.innerHTML =
+                        '<option value="">-- Pilih Barang terlebih dahulu --</option>';
+                    return;
+                }
+
+                // Fetch divisi berdasarkan barang
+                fetch(`/ajax/divisions-by-item/${itemId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        divisionSelect.innerHTML = '';
+
+                        if (data.length === 0) {
+                            divisionSelect.innerHTML =
+                                '<option value="">Tidak ada stok di divisi manapun</option>';
+                            return;
+                        }
+
+                        // isi divisi yang punya stok
+                        data.forEach(d => {
+                            let label = `${d.nama}`;
+                            if (d.kode) label += ` (${d.kode})`;
+                            label += ` - Stok: ${d.stok}`;
+
+                            const opt = document.createElement('option');
+                            opt.value = d.id;
+                            opt.textContent = label;
+
+                            divisionSelect.appendChild(opt);
+                        });
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        divisionSelect.innerHTML =
+                            '<option value="">Gagal memuat divisi</option>';
+                    });
+            });
+        });
+    </script>
+
 </x-guest-layout>

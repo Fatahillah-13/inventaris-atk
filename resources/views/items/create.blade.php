@@ -102,6 +102,16 @@
                             placeholder="Contoh: Hanya digunakan untuk divisi tertentu, merk tertentu, dsb.">{{ old('catatan') }}</textarea>
                     </div>
 
+                    {{-- Barang ini bisa dipinjam? --}}
+                    <div class="flex items-center">
+                        <input id="can_be_loaned" name="can_be_loaned" type="checkbox" value="1"
+                            {{ old('can_be_loaned') ? 'checked' : '' }}
+                            class="h-4 w-4 text-indigo-600 border-gray-300 rounded">
+                        <label for="can_be_loaned" class="ml-2 block text-sm text-gray-700">
+                            Barang ini dapat dipinjam (misalnya: laptop, projector, drone, kabel HDMI, dll.)
+                        </label>
+                    </div>
+
                     {{-- Tombol --}}
                     <div class="flex items-center justify-between">
                         <a href="{{ route('items.index') }}"

@@ -9,6 +9,7 @@ class Loan extends Model
     protected $fillable = [
         'kode_loan',
         'item_id',
+        'division_id',
         'user_id',
         'peminjam',
         'departemen',
@@ -29,5 +30,10 @@ class Loan extends Model
     {
         // boleh null
         return $this->belongsTo(User::class);
+    }
+
+    public function division()
+    {
+        return $this->belongsTo(Division::class);
     }
 }

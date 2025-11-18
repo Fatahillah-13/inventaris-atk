@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Item;
 use App\Models\Loan;
+use App\Models\Division;
+use App\Models\ItemDivisionStock;
 use App\Models\StockMovement;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,15 +19,19 @@ class LoanController extends Controller
     public function publicCreate()
     {
         // hanya tampilkan barang yang stoknya > 0
-        $items = Item::orderBy('nama_barang')->get();
+        $items = Item::where('can_be_loaned', true)
+            ->orderBy('nama_barang')
+            ->get();
+        $divisions = Division::orderBy('nama')->get();
 
-        return view('loans.public_create', compact('items'));
+        return view('loans.public_create', compact('items', 'divisions'));
     }
 
     public function publicStore(Request $request)
     {
         $validated = $request->validate([
             'item_id'                 => 'required|exists:items,id',
+            'division_id'             => 'required|exists:divisions,id',
             'peminjam'                => 'required|string|max:100',
             'departemen'              => 'required|string|max:100',
             'jumlah'                  => 'required|integer|min:1',
@@ -34,16 +40,56 @@ class LoanController extends Controller
             'keterangan'              => 'nullable|string|max:255',
         ]);
 
-        DB::transaction(function () use ($validated) {
-            // kunci item selama proses
-            $item = Item::lockForUpdate()->findOrFail($validated['item_id']);
+        $item = Item::where('id', $validated['item_id'])
+            ->where('can_be_loaned', true)
+            ->first();
 
-            if ($item->stok_terkini < $validated['jumlah']) {
-                abort(400, 'Stok tidak mencukupi untuk dipinjam.');
+        if (!$item->exists) {
+            abort(400, 'Barang tidak valid.');
+        }
+
+        if (!$item) {
+            return back()
+                ->withErrors(['item_id' => 'Barang ini tidak tersedia untuk peminjaman.'])
+                ->withInput();
+        }
+
+        $stock = ItemDivisionStock::where('item_id', $item->id)
+            ->where('division_id', $validated['division_id'])
+            ->first();
+
+        if (!$stock) {
+            return back()
+                ->withErrors(['division_id' => 'Divisi ini tidak memiliki stok untuk barang tersebut.'])
+                ->withInput();
+        }
+
+        if ($stock->stok_terkini < $validated['jumlah']) {
+            return back()
+                ->withErrors(['jumlah' => 'Stok divisi tidak mencukupi. Stok tersedia: ' . $stock->stok_terkini])
+                ->withInput();
+        }
+
+        $totalStock = $item->divisionStocks->sum('stok_terkini');
+
+        if ($totalStock <= 0) {
+            return back()
+                ->withErrors(['item_id' => 'Barang ini tidak tersedia di divisi manapun.'])
+                ->withInput();
+        }
+
+        DB::transaction(function () use ($validated, $item) {
+            $stock = ItemDivisionStock::lockForUpdate()
+                ->where('item_id', $item->id)
+                ->where('division_id', $validated['division_id'])
+                ->first();
+
+            if (!$stock || $stock->stok_terkini < $validated['jumlah']) {
+                abort(400, 'Stok pada divisi ini tidak mencukupi untuk peminjaman.');
             }
 
             // kurangi stok
-            $item->decrement('stok_terkini', $validated['jumlah']);
+            $stock->decrement('stok_terkini', $validated['jumlah']);
 
             // generate kode peminjaman sederhana
             $kode = 'LOAN-' . now()->format('YmdHis');
@@ -55,6 +101,7 @@ class LoanController extends Controller
             $loan = Loan::create([
                 'kode_loan'               => $kode,
                 'item_id'                 => $item->id,
+                'division_id'             => $validated['division_id'],
                 'user_id'                 => $userId,
                 'peminjam'                => $validated['peminjam'],
                 'departemen'              => $validated['departemen'],
@@ -68,6 +115,7 @@ class LoanController extends Controller
             // catat pergerakan stok
             StockMovement::create([
                 'item_id'    => $item->id,
+                'division_id' => $validated['division_id'],
                 'jenis'      => 'keluar',
                 'jumlah'     => $validated['jumlah'],
                 'tanggal'    => $validated['tanggal_pinjam'],
@@ -81,6 +129,28 @@ class LoanController extends Controller
             ->route('public.loans.create')
             ->with('success', 'Permintaan peminjaman Anda telah dicatat. Silakan ambil barang di bagian ATK.');
     }
+
+    public function getDivisionsByItem(Item $item)
+    {
+        // ambil stok per divisi yang stoknya > 0
+        $divStocks = $item->divisionStocks()
+            ->with('division')
+            ->where('stok_terkini', '>', 0)
+            ->get();
+
+        // bentuk response JSON
+        $result = $divStocks->map(function ($stock) {
+            return [
+                'id'   => $stock->division->id,
+                'nama' => $stock->division->nama,
+                'kode' => $stock->division->kode,
+                'stok' => $stock->stok_terkini,
+            ];
+        });
+
+        return response()->json($result);
+    }
+
 
     // === BAGIAN INTERNAL (login) seperti index(), returnLoan() bisa kita tambah nanti ===
 
@@ -105,7 +175,7 @@ class LoanController extends Controller
     // detail peminjaman (opsional tapi enak punya)
     public function show(Loan $loan)
     {
-        $loan->load('item', 'user');
+        $loan->load('item.divisionStocks.division', 'user', 'division');
 
         return view('loans.show', compact('loan'));
     }
@@ -113,29 +183,34 @@ class LoanController extends Controller
     // tandai sudah dikembalikan
     public function returnLoan(Loan $loan)
     {
-        if ($loan->status === 'dikembalikan') {
-            return redirect()->route('loans.index')
-                ->with('success', 'Peminjaman sudah dikembalikan sebelumnya.');
+        if ($loan->status !== 'dipinjam') {
+            return redirect()
+                ->route('loans.show', $loan)
+                ->with('error', 'Peminjaman ini sudah dikembalikan atau tidak dalam status dipinjam.');
         }
 
         DB::transaction(function () use ($loan) {
-            $item = Item::lockForUpdate()->findOrFail($loan->item_id);
+            $stock = ItemDivisionStock::lockForUpdate()
+                ->firstOrCreate(
+                    [
+                        'item_id'     => $loan->item_id,
+                        'division_id' => $loan->division_id,
+                    ],
+                    [
+                        'stok_terkini' => 0,
+                    ]
+                );
 
-            // tambahkan stok
-            $item->increment('stok_terkini', $loan->jumlah);
-
-            // update status loan
-            $loan->update([
-                'status'          => 'dikembalikan',
-                'tanggal_kembali' => now()->toDateString(),
-            ]);
+            // tambah stok kembali
+            $stock->increment('stok_terkini', $loan->jumlah);
 
             // user internal yang memproses pengembalian (kalau ada)
             $userId = Auth::check() ? Auth::id() : null;
 
             // catat barang masuk di stock_movements
             StockMovement::create([
-                'item_id'    => $item->id,
+                'item_id'    => $loan->item_id,
+                'division_id' => $loan->division_id,
                 'jenis'      => 'masuk',
                 'jumlah'     => $loan->jumlah,
                 'tanggal'    => now()->toDateString(),
@@ -143,9 +218,16 @@ class LoanController extends Controller
                 'keterangan' => 'Pengembalian ' . $loan->kode_loan . ' oleh '
                     . $loan->peminjam . ' (' . $loan->departemen . ')',
             ]);
+
+            // update status loan
+            $loan->update([
+                'status'          => 'dikembalikan',
+                'tanggal_kembali' => now()->toDateString(),
+            ]);
         });
 
-        return redirect()->route('loans.index')
-            ->with('success', 'Peminjaman berhasil ditandai sudah dikembalikan.');
+        return redirect()
+            ->route('loans.show', $loan)
+            ->with('success', 'Peminjaman telah ditandai sudah dikembalikan dan stok divisi telah diperbarui.');
     }
 }

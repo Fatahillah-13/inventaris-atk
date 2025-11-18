@@ -110,6 +110,8 @@
                                     Jenis</th>
                                 <th class="px-4 py-2 border-b text-left text-xs font-semibold uppercase tracking-wider">
                                     Barang</th>
+                                <th class="px-4 py-2 border-b text-left text-xs font-semibold uppercase tracking-wider">
+                                    Divisi</th>
                                 <th
                                     class="px-4 py-2 border-b text-right text-xs font-semibold uppercase tracking-wider">
                                     Jumlah</th>
@@ -157,7 +159,17 @@
                                             </span>
                                         @endif
                                     </td>
-
+                                    {{-- Divisi --}}
+                                    <td class="px-4 py-2 border-b align-top">
+                                        @if ($movement->division)
+                                            <span
+                                                class="inline-flex px-2 py-0.5 rounded-full text-[11px] bg-slate-100 text-slate-700 border border-slate-200">
+                                                {{ $movement->division->nama }}
+                                            </span>
+                                        @else
+                                            <span class="text-xs text-gray-400 italic">-</span>
+                                        @endif
+                                    </td>
                                     {{-- Jumlah --}}
                                     <td class="px-4 py-2 border-b align-top text-right">
                                         <span class="font-semibold text-gray-900">

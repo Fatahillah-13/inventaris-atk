@@ -14,14 +14,19 @@ class ItemController extends Controller
 
     public function index(Request $request)
     {
-        $query = Item::query();
+        $query = Item::with(['divisionStocks.division']); // penting: eager load
 
-        if ($search = $request->input('q')) {
-            $query->where('kode_barang', 'like', "%$search%")
-                ->orWhere('nama_barang', 'like', "%$search%");
+        if ($request->filled('q')) {
+            $search = $request->q;
+
+            $query->where(function ($q) use ($search) {
+                $q->where('kode_barang', 'like', "%{$search}%")
+                    ->orWhere('nama_barang', 'like', "%{$search}%")
+                    ->orWhere('item_category', 'like', "%{$search}%");
+            });
         }
 
-        $items = $query->orderBy('nama_barang')->paginate(15);
+        $items = $query->orderBy('nama_barang')->paginate(20)->withQueryString();
 
         return view('items.index', compact('items'));
     }
@@ -40,6 +45,7 @@ class ItemController extends Controller
             'satuan'        => 'required',
             'stok_awal'     => 'required|integer|min:0',
             'catatan'       => 'nullable|string',
+            'can_be_loaned' => 'nullable|boolean',
         ]);
 
         $validated['stok_terkini'] = $validated['stok_awal'];
@@ -63,6 +69,7 @@ class ItemController extends Controller
             'satuan'        => 'required',
             // 'stok_awal'     => 'required|integer|min:0',
             'catatan'       => 'nullable|string',
+            'can_be_loaned' => 'nullable|boolean',
         ]);
 
         $item->update($validated);

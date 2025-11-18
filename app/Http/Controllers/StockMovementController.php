@@ -19,7 +19,7 @@ class StockMovementController extends Controller
 
     public function index(Request $request)
     {
-        $query = StockMovement::with('item', 'user');
+        $query = StockMovement::with('item', 'user', 'division');
 
         // Search: kode barang, nama barang, atau keterangan
         if ($request->filled('q')) {
