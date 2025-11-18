@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\AtkRequest;
 use App\Models\Item;
+use App\Models\Division;
 use App\Models\StockMovement;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,8 +18,9 @@ class AtkRequestController extends Controller
     {
         // tampilkan semua barang (atau bisa difilter stok > 0 kalau mau)
         $items = Item::orderBy('nama_barang')->get();
+        $divisions = Division::orderBy('nama')->get();
 
-        return view('requests.public_create', compact('items'));
+        return view('requests.public_create', compact('items', 'divisions'));
     }
 
     public function publicStore(Request $request)
