@@ -7,6 +7,45 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    <style>
+        @keyframes fadeInUp {
+            0% {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        .fade-in-up {
+            opacity: 0;
+            animation: fadeInUp .7s ease-out .1s forwards;
+        }
+
+        .fade-in-up-delayed {
+            opacity: 0;
+            animation: fadeInUp .7s ease-out .3s forwards;
+        }
+
+        .fade-in-delayed {
+            opacity: 0;
+            animation: fadeIn .8s ease-out .5s forwards;
+        }
+    </style>
 </head>
 
 <body>
@@ -24,11 +63,10 @@
         <div class="relative z-10 flex flex-col min-h-screen">
 
             {{-- Header --}}
-            <header class="px-6 sm:px-10 py-4 flex items-center justify-between">
+            <header class="px-6 sm:px-10 py-4 flex items-center justify-between fade-in-up">
                 <div class="flex items-center gap-3">
                     {{-- Logo bulat --}}
-                    <img src="{{ asset('images/logo.png') }}" 
-                        alt="Logo" 
+                    <img src="{{ asset('images/logo.png') }}" alt="Logo"
                         class="w-14 h-14 sm:w-16 sm:h-16 rounded-full object-cover shadow-lg">
                     <div class="leading-tight">
                         <div class="text-xs font-semibold tracking-[0.25em] text-emerald-300">
@@ -48,7 +86,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4M10 17l5-5-5-5M15 12H3" />
                     </svg>
-                    <span>Login Admin / Staff</span>
+                    <span>Login</span>
                 </a>
             </header>
 
@@ -57,7 +95,7 @@
                 <div class="max-w-5xl w-full">
 
                     {{-- Judul --}}
-                    <div class="text-center mb-8 sm:mb-10">
+                    <div class="text-center mb-8 sm:mb-10 fade-in-up-delayed">
                         <p class="text-xs sm:text-sm tracking-[0.35em] text-emerald-300 mb-2">
                             S . E . D . I . A
                         </p>
@@ -71,7 +109,7 @@
                     </div>
 
                     {{-- Card aksi (horizontal) --}}
-                    <div class="flex flex-col md:flex-row gap-5 md:gap-6 justify-center items-stretch">
+                    <div class="flex flex-col md:flex-row gap-5 md:gap-6 justify-center items-stretch fade-in-delayed">
 
                         {{-- Card Permintaan ATK --}}
                         <a href="{{ route('public.requests.create') }}"
@@ -146,7 +184,7 @@
             </main>
 
             {{-- Footer --}}
-            <footer class="py-4 text-center text-[11px] text-slate-500">
+            <footer class="py-4 text-center text-[11px] text-slate-500 fade-in-delayed">
                 © {{ now()->year }} SEDIA – Sistem Elektronik Data Inventaris & Aset · HRD Hwaseung Indonesia
             </footer>
         </div>
