@@ -44,15 +44,15 @@
 
             {{-- Departemen / Divisi --}}
             <div>
-                <label for="departemen" class="block text-sm font-medium text-gray-700">
+                <label for="division_id" class="block text-sm font-medium text-gray-700">
                     Departemen / Divisi
                 </label>
-                <select name="departemen" id="departemen"
+                <select name="division_id" id="division_id"
                     class="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500"
                     required>
                     <option value="">-- Pilih Departemen --</option>
                     @foreach ($divisions as $division)
-                        <option value="{{ $division->nama }}" {{ old('departemen') == $division->nama ? 'selected' : '' }}>
+                        <option value="{{ $division->id }}" {{ old('division_id') == $division->id ? 'selected' : '' }}>
                             {{ $division->nama }}
                         </option>
                     @endforeach

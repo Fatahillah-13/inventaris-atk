@@ -78,6 +78,8 @@
                                     User Internal</th>
                                 <th class="px-4 py-2 border-b text-left text-xs font-semibold uppercase tracking-wider">
                                     Keterangan</th>
+                                <th class="px-4 py-2 border-b text-left text-xs font-semibold uppercase tracking-wider">
+                                    Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white">
@@ -155,6 +157,53 @@
                                             <span class="text-xs text-gray-400 italic">-</span>
                                         @endif
                                     </td>
+
+                                    <td class="px-3 py-2 text-center">
+                                        {{-- Status --}}
+                                        @if ($req->status === 'pending')
+                                            <span
+                                                class="inline-flex px-2 py-0.5 rounded-full text-[11px] bg-amber-500/10 text-amber-300 border border-amber-500/40">
+                                                Pending
+                                            </span>
+                                        @elseif($req->status === 'approved')
+                                            <span
+                                                class="inline-flex px-2 py-0.5 rounded-full text-[11px] bg-emerald-500/10 text-emerald-300 border border-emerald-500/40">
+                                                Disetujui
+                                            </span>
+                                        @else
+                                            <span
+                                                class="inline-flex px-2 py-0.5 rounded-full text-[11px] bg-rose-500/10 text-rose-300 border border-rose-500/40">
+                                                Ditolak
+                                            </span>
+                                        @endif
+                                    </td>
+
+                                    <td class="px-3 py-2 text-center">
+                                        @if ($req->status === 'pending' && in_array(auth()->user()->role, ['admin', 'staff_pengelola']))
+                                            <div class="inline-flex gap-2">
+                                                <form action="{{ route('requests.approve', $req) }}" method="POST"
+                                                    onsubmit="return confirm('Setujui permintaan ini dan kurangi stok?');">
+                                                    @csrf
+                                                    <button type="submit"
+                                                        class="px-2 py-1 text-[11px] rounded bg-emerald-500 text-white hover:bg-emerald-600">
+                                                        Setujui
+                                                    </button>
+                                                </form>
+
+                                                <form action="{{ route('requests.reject', $req) }}" method="POST"
+                                                    onsubmit="return confirm('Tolak permintaan ini?');">
+                                                    @csrf
+                                                    <button type="submit"
+                                                        class="px-2 py-1 text-[11px] rounded bg-rose-500 text-white hover:bg-rose-600">
+                                                        Tolak
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        @else
+                                            <span class="text-xs text-slate-500">-</span>
+                                        @endif
+                                    </td>
+
                                 </tr>
                             @empty
                                 <tr>

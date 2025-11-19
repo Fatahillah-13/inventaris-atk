@@ -72,6 +72,10 @@ Route::middleware(['auth', 'role:admin,staff_pengelola'])->group(function () {
 
     // Daftar permintaan ATK (internal)
     Route::get('requests', [AtkRequestController::class, 'index'])->name('requests.index');
+    Route::post('/requests/{atkRequest}/approve', [AtkRequestController::class, 'approve'])
+        ->name('requests.approve');
+    Route::post('/requests/{atkRequest}/reject', [AtkRequestController::class, 'reject'])
+        ->name('requests.reject');
 });
 
 require __DIR__ . '/auth.php';
