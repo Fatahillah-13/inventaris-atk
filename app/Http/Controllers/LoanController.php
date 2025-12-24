@@ -10,6 +10,8 @@ use App\Models\StockMovement;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Validation\ValidationException;
 
 
 class LoanController extends Controller
@@ -27,18 +29,103 @@ class LoanController extends Controller
         return view('loans.public_create', compact('items', 'divisions'));
     }
 
+    private function fetchEmployeeByNik(string $nik): array
+    {
+        $baseUrl = config('services.employee_api.base_url');
+        $url = rtrim($baseUrl, '/') . '/employees/';
+
+        $response = Http::timeout(5)->get($url, [
+            'search' => $nik,
+        ]);
+
+        if (!$response->ok()) {
+            throw ValidationException::withMessages([
+                'employee_id' => 'Gagal menghubungi layanan data karyawan. Silakan coba lagi.',
+            ]);
+        }
+
+        $json = $response->json();
+
+        $data = $json['data'] ?? [];
+        if (!is_array($data) || count($data) === 0) {
+            throw ValidationException::withMessages([
+                'employee_id' => 'NIK tidak ditemukan.',
+            ]);
+        }
+
+        $employee = $data[0];
+
+        $status = strtolower((string)($employee['status_employee'] ?? ''));
+        if ($status !== 'active') {
+            throw ValidationException::withMessages([
+                'employee_id' => 'Karyawan tidak aktif, peminjaman tidak dapat diproses.',
+            ]);
+        }
+
+        $name = trim((string)($employee['name'] ?? ''));
+        $department = trim((string)($employee['department'] ?? ''));
+
+        if ($name === '' || $department === '') {
+            throw ValidationException::withMessages([
+                'employee_id' => 'Data karyawan tidak lengkap (nama/departemen kosong).',
+            ]);
+        }
+
+        return [
+            'employee_id' => $nik,
+            'name' => $name,
+            'department' => $department,
+        ];
+    }
+
+    public function getEmployeeByNik(string $nik)
+    {
+        // basic sanitize
+        $nik = trim($nik);
+
+        if ($nik === '' || strlen($nik) > 30) {
+            return response()->json([
+                'found' => false,
+                'message' => 'NIK tidak valid.',
+            ], 422);
+        }
+
+        try {
+            $emp = $this->fetchEmployeeByNik($nik);
+
+            return response()->json([
+                'found' => true,
+                'employee_id' => $emp['employee_id'],
+                'name' => $emp['name'],
+                'department' => $emp['department'],
+            ]);
+        } catch (ValidationException $e) {
+            $msg = $e->errors()['employee_id'][0] ?? 'Data karyawan tidak valid.';
+
+            return response()->json([
+                'found' => false,
+                'message' => $msg,
+            ], 422);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'found' => false,
+                'message' => 'Terjadi kesalahan saat mengambil data karyawan.',
+            ], 500);
+        }
+    }
+
     public function publicStore(Request $request)
     {
         $validated = $request->validate([
             'item_id'                 => 'required|exists:items,id',
             'division_id'             => 'required|exists:divisions,id',
-            'peminjam'                => 'required|string|max:100',
-            'departemen'              => 'required|string|max:100',
+            'employee_id'             => 'required|string|max:30',
             'jumlah'                  => 'required|integer|min:1',
             'tanggal_pinjam'          => 'required|date',
             'tanggal_rencana_kembali' => 'nullable|date|after_or_equal:tanggal_pinjam',
             'keterangan'              => 'nullable|string|max:255',
         ]);
+
 
         $item = Item::where('id', $validated['item_id'])
             ->where('can_be_loaned', true)
@@ -94,6 +181,8 @@ class LoanController extends Controller
             // generate kode peminjaman sederhana
             $kode = 'LOAN-' . now()->format('YmdHis');
 
+            $emp = $this->fetchEmployeeByNik($validated['employee_id']);
+
             // user_id bisa null (public form)
             $userId = Auth::check() ? Auth::id() : null;
 
@@ -103,8 +192,9 @@ class LoanController extends Controller
                 'item_id'                 => $item->id,
                 'division_id'             => $validated['division_id'],
                 'user_id'                 => $userId,
-                'peminjam'                => $validated['peminjam'],
-                'departemen'              => $validated['departemen'],
+                'employee_id'             => $emp['employee_id'],
+                'peminjam'                => $emp['name'],
+                'departemen'              => $emp['department'],
                 'jumlah'                  => $validated['jumlah'],
                 'tanggal_pinjam'          => $validated['tanggal_pinjam'],
                 'tanggal_rencana_kembali' => $validated['tanggal_rencana_kembali'] ?? null,

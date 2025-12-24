@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'employee_api' => [
+        'base_url' => env('EMPLOYEE_API_BASE_URL', 'http://10.10.100.193:1002/api.employees.v1'),
+    ],
+
 ];

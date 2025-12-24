@@ -28,21 +28,36 @@
         <form method="POST" action="{{ route('public.loans.store') }}" class="space-y-4">
             @csrf
 
-            {{-- Nama Peminjam --}}
+            {{-- NIK --}}
+            <div>
+                <label class="block text-sm font-medium text-gray-700">
+                    NIK (Nomor Induk Karyawan)
+                </label>
+                <input type="text" name="employee_id" id="employee_id" value="{{ old('employee_id') }}" required
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500"
+                    placeholder="Contoh: 2412074308">
+                <p id="employee_help" class="text-xs text-gray-400 mt-1">
+                    Isi NIK, nama dan departemen akan terisi otomatis.
+                </p>
+                <p id="employee_error" class="text-xs text-red-600 mt-1 hidden"></p>
+            </div>
+
+            {{-- Nama Peminjam auto-fill --}}
             <div>
                 <label class="block text-sm font-medium text-gray-700">
                     Nama Peminjam
                 </label>
-                <input type="text" name="peminjam" value="{{ old('peminjam') }}" required
+                <input type="text" name="peminjam" id="employee_name" value="{{ old('peminjam') }}" readonly
                     class="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500">
             </div>
 
-            {{-- Departemen / Divisi Peminjam (organisasional) --}}
+            {{-- Departemen auto-fill --}}
             <div>
                 <label class="block text-sm font-medium text-gray-700">
                     Departemen / Divisi Peminjam
                 </label>
-                <input type="text" name="departemen" value="{{ old('departemen') }}" required
+                <input type="text" name="departemen" id="employee_department" value="{{ old('departemen') }}"
+                    readonly
                     class="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500">
             </div>
 
@@ -123,7 +138,7 @@
             </div>
 
             <div class="pt-2">
-                <button type="submit"
+                <button type="submit" id="submit_btn"
                     class="w-full inline-flex justify-center items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700">
                     Kirim Peminjaman
                 </button>
@@ -132,6 +147,81 @@
     </div>
 
     <script>
+        const nikInput = document.getElementById('employee_id');
+        const nameInput = document.getElementById('employee_name');
+        const deptInput = document.getElementById('employee_department');
+        const errorEl = document.getElementById('employee_error');
+        const submitBtn = document.getElementById('submit_btn');
+
+        let nikTimer = null;
+        let nikValid = false;
+
+        function setNikState(valid, message = '') {
+            nikValid = valid;
+            if (valid) {
+                errorEl.classList.add('hidden');
+                errorEl.textContent = '';
+            } else {
+                if (message) {
+                    errorEl.textContent = message;
+                    errorEl.classList.remove('hidden');
+                }
+            }
+            submitBtn.disabled = !nikValid;
+            submitBtn.classList.toggle('opacity-50', !nikValid);
+            submitBtn.classList.toggle('cursor-not-allowed', !nikValid);
+        }
+
+        async function lookupNik(nik) {
+            if (!nik) {
+                nameInput.value = '';
+                deptInput.value = '';
+                setNikState(false, 'NIK wajib diisi.');
+                return;
+            }
+
+            setNikState(false, 'Memeriksa NIK...');
+            try {
+                const res = await fetch(`/ajax/employee-by-nik/${encodeURIComponent(nik)}`);
+                const data = await res.json();
+
+                if (!res.ok || !data.found) {
+                    nameInput.value = '';
+                    deptInput.value = '';
+                    setNikState(false, data.message || 'NIK tidak ditemukan.');
+                    return;
+                }
+
+                nameInput.value = data.name || '';
+                deptInput.value = data.department || '';
+                setNikState(true);
+            } catch (e) {
+                nameInput.value = '';
+                deptInput.value = '';
+                setNikState(false, 'Gagal mengambil data karyawan. Coba lagi.');
+            }
+        }
+
+        nikInput.addEventListener('input', function() {
+            const nik = this.value.trim();
+
+            // reset autofill while typing
+            nameInput.value = '';
+            deptInput.value = '';
+            setNikState(false);
+
+            clearTimeout(nikTimer);
+            nikTimer = setTimeout(() => lookupNik(nik), 450);
+        });
+
+        // saat load halaman, jika ada old('employee_id') maka auto lookup
+        if (nikInput.value && nikInput.value.trim() !== '') {
+            lookupNik(nikInput.value.trim());
+        } else {
+            // default: jangan bisa submit sebelum NIK valid
+            setNikState(false);
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             const itemSelect = document.getElementById('item_id');
             const divisionSelect = document.getElementById('division_id');

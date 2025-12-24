@@ -11,6 +11,7 @@ class Loan extends Model
         'item_id',
         'division_id',
         'user_id',
+        'employee_id',
         'peminjam',
         'departemen',
         'jumlah',

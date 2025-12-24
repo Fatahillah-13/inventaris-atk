@@ -26,6 +26,9 @@ Route::get('/register', function () {
 Route::get('/ajax/divisions-by-item/{item}', [LoanController::class, 'getDivisionsByItem'])
     ->name('ajax.divisions.byItem');
 
+Route::get('/ajax/employee-by-nik/{nik}', [LoanController::class, 'getEmployeeByNik'])
+    ->name('ajax.employee.byNik');
+
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])
         ->name('dashboard');
