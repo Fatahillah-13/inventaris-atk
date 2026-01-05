@@ -30,6 +30,24 @@
                 <form method="POST" action="{{ route('stock.keluar.store') }}">
                     @csrf
 
+                    {{-- Pilih Divisi --}}
+                    <div class="mb-4">
+                        <label for="division_id" class="block text-sm font-medium text-gray-700">
+                            Divisi
+                        </label>
+                        <select name="division_id" id="division_id"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
+                            required>
+                            <option value="">-- Pilih Divisi --</option>
+                            @foreach ($divisions as $division)
+                                <option value="{{ $division->id }}"
+                                    {{ old('division_id') == $division->id ? 'selected' : '' }}>
+                                    {{ $division->nama }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
                     {{-- Pilih Barang --}}
                     <div class="mb-4">
                         <label for="item_id" class="block text-sm font-medium text-gray-700">
@@ -38,13 +56,7 @@
                         <select name="item_id" id="item_id"
                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
                             required>
-                            <option value="">-- Pilih Barang --</option>
-                            @foreach ($items as $item)
-                                <option value="{{ $item->id }}" {{ old('item_id') == $item->id ? 'selected' : '' }}>
-                                    {{ $item->kode_barang }} - {{ $item->nama_barang }} (stok:
-                                    {{ $item->stok_terkini }})
-                                </option>
-                            @endforeach
+                            <option value="">-- Pilih divisi terlebih dahulu --</option>
                         </select>
                     </div>
 
@@ -95,4 +107,86 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const divisionSelect = document.getElementById('division_id');
+            const itemSelect = document.getElementById('item_id');
+
+            function resetItems(message) {
+                itemSelect.innerHTML = `<option value="">${message}</option>`;
+                itemSelect.disabled = true;
+            }
+
+            async function loadItemsByDivision(divisionId) {
+                resetItems('Memuat barang...');
+
+                try {
+                    const res = await fetch(`/ajax/items-by-division/${divisionId}`);
+                    const data = await res.json();
+
+                    itemSelect.innerHTML = '';
+                    itemSelect.disabled = false;
+
+                    if (!Array.isArray(data) || data.length === 0) {
+                        resetItems('Tidak ada barang di divisi ini');
+                        return;
+                    }
+
+                    // placeholder
+                    const placeholder = document.createElement('option');
+                    placeholder.value = '';
+                    placeholder.textContent = '-- Pilih Barang --';
+                    itemSelect.appendChild(placeholder);
+
+                    // render options
+                    let selectableCount = 0;
+                    let lastSelectableId = null;
+
+                    data.forEach(item => {
+                        const opt = document.createElement('option');
+                        opt.value = item.id;
+
+                        const stok = Number(item.stok || 0);
+                        opt.textContent = `${item.nama_barang} - stok: ${stok}`;
+
+                        // kalau stok 0 -> disabled tapi tetap tampil
+                        if (stok <= 0) {
+                            opt.disabled = true;
+                        } else {
+                            selectableCount++;
+                            lastSelectableId = String(item.id);
+                        }
+
+                        itemSelect.appendChild(opt);
+                    });
+
+                    // auto-select kalau hanya 1 yang selectable
+                    if (selectableCount === 1 && lastSelectableId) {
+                        itemSelect.value = lastSelectableId;
+                    }
+                } catch (e) {
+                    console.error(e);
+                    resetItems('Gagal memuat barang');
+                }
+            }
+
+            divisionSelect.addEventListener('change', function() {
+                const divisionId = this.value;
+                if (!divisionId) {
+                    resetItems('-- Pilih divisi terlebih dahulu --');
+                    return;
+                }
+
+                loadItemsByDivision(divisionId);
+            });
+
+            // jika ada old division (mis. setelah error submit), auto load items
+            if (divisionSelect.value) {
+                loadItemsByDivision(divisionSelect.value);
+            } else {
+                resetItems('-- Pilih divisi terlebih dahulu --');
+            }
+        });
+    </script>
 </x-app-layout>

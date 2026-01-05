@@ -57,6 +57,29 @@ class StockMovementController extends Controller
         ]);
     }
 
+    public function getItemsByDivision(Division $division)
+    {
+        // Ambil semua item + stok di divisi ini (termasuk stok 0)
+        $stocks = ItemDivisionStock::query()
+            ->where('division_id', $division->id)
+            ->with('item') // relasi ke Item
+            ->get();
+
+        // Kalau ada item yang belum punya record di item_division_stocks,
+        // mereka tidak akan muncul. (Biasanya ini OK.)
+        $result = $stocks->map(function ($stock) {
+            return [
+                'id' => $stock->item->id,
+                'kode_barang' => $stock->item->kode_barang,
+                'nama_barang' => $stock->item->nama_barang,
+                'stok' => (int) $stock->stok_terkini,
+                'satuan' => $stock->item->satuan,
+            ];
+        })->values();
+
+        return response()->json($result);
+    }
+
     public function createMasuk()
     {
         $items = Item::orderBy('nama_barang')->get();
