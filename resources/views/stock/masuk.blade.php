@@ -36,9 +36,9 @@
                             Barang
                         </label>
                         <select name="item_id" id="item_id"
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
-                            required>
-                            <option value="">-- Pilih Barang --</option>
+                            class="tom-select mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
+                            data-placeholder="Pilih Barang" required>
+                            <option value=""></option>
                             @foreach ($items as $item)
                                 <option value="{{ $item->id }}" {{ old('item_id') == $item->id ? 'selected' : '' }}>
                                     {{ $item->kode_barang }} - {{ $item->nama_barang }}
