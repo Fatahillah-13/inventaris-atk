@@ -12,9 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            if (!Schema::hasColumn('users', 'role')) {
-                $table->string('role')->default('staff_pengelola')->after('email');
-            }
+            $table->foreignId('division_id')->nullable()->after('role')->constrained('divisions')->nullOnDelete();
         });
     }
 
@@ -24,7 +22,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('role');
+            $table->dropForeign(['division_id']);
+            $table->dropColumn('division_id');
         });
     }
 };

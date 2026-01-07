@@ -11,10 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            if (!Schema::hasColumn('users', 'role')) {
-                $table->string('role')->default('staff_pengelola')->after('email');
-            }
+        Schema::table('items', function (Blueprint $table) {
+            $table->boolean('is_requestable')->default(false)->after('can_be_loaned');
         });
     }
 
@@ -23,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('role');
+        Schema::table('items', function (Blueprint $table) {
+            $table->dropColumn('is_requestable');
         });
     }
 };
