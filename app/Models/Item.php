@@ -16,6 +16,7 @@ class Item extends Model
         'stok_terkini',
         'catatan',
         'can_be_loaned',
+        'is_requestable',
     ];
 
     public function divisionStocks()

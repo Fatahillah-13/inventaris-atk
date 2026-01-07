@@ -3,37 +3,46 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class AtkRequest extends Model
 {
     protected $fillable = [
-        'kode_request',
-        'item_id',
-        'user_id',
+        'request_number',
+        'period',
         'division_id',
-        'peminta',
-        'departemen',
-        'jumlah',
-        'tanggal',
-        'keterangan',
+        'requested_by',
         'status',
-        'approved_by',
-        'approved_at',
+        'submitted_at',
     ];
 
-    public function item()
+    protected $casts = [
+        'submitted_at' => 'datetime',
+    ];
+
+    public function requestedBy(): BelongsTo
     {
-        return $this->belongsTo(Item::class);
+        return $this->belongsTo(User::class, 'requested_by');
     }
 
-    public function user()
+    public function division(): BelongsTo
     {
-        // user internal yang memproses (boleh null)
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(Division::class);
     }
 
-    public function approver()
+    public function items(): HasMany
     {
-        return $this->belongsTo(User::class, 'approved_by');
+        return $this->hasMany(AtkRequestItem::class);
+    }
+
+    public function isDraft(): bool
+    {
+        return $this->status === 'draft';
+    }
+
+    public function isSubmitted(): bool
+    {
+        return $this->status === 'submitted';
     }
 }

@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\AtkRequest;
+use App\Models\OldAtkRequest;
 use App\Models\Item;
 use App\Models\Division;
 use App\Models\ItemDivisionStock;
@@ -42,7 +42,7 @@ class AtkRequestController extends Controller
         $userId = Auth::check() ? Auth::id() : null;
 
         // simpan permintaan
-        AtkRequest::create([
+        OldAtkRequest::create([
             'kode_request' => $kode,
             'item_id'      => $validated['item_id'],
             'user_id'      => $userId,
@@ -65,7 +65,7 @@ class AtkRequestController extends Controller
     // === INTERNAL: DAFTAR PERMINTAAN (ADMIN & STAFF PENGELOLA) ===
     public function index(Request $request)
     {
-        $query = AtkRequest::with('item', 'user');
+        $query = OldAtkRequest::with('item', 'user');
 
         // pencarian sederhana: peminta, departemen, kode/nama barang
         if ($request->filled('q')) {
@@ -93,7 +93,7 @@ class AtkRequestController extends Controller
         ]);
     }
 
-    public function approve(AtkRequest $atkRequest)
+    public function approve(OldAtkRequest $atkRequest)
     {
 
         // hanya boleh approve kalau masih pending
@@ -153,7 +153,7 @@ class AtkRequestController extends Controller
             ->with('success', 'Permintaan ATK telah disetujui dan stok sudah dikurangi.');
     }
 
-    public function reject(AtkRequest $atkRequest)
+    public function reject(OldAtkRequest $atkRequest)
     {
         if ($atkRequest->status !== 'pending') {
             return redirect()

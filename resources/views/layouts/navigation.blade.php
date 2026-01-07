@@ -23,6 +23,11 @@
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
+                    @if (auth()->user()->role === 'admin' || auth()->user()->role === 'staff_pengelola')
+                        <x-nav-link :href="route('atk.catalog')" :active="request()->routeIs('atk.*')">
+                            {{ __('Permintaan ATK') }}
+                        </x-nav-link>
+                    @endif
                 </div>
             </div>
 
@@ -101,6 +106,11 @@
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
+            @if (auth()->user()->role === 'admin' || auth()->user()->role === 'staff_pengelola')
+                <x-responsive-nav-link :href="route('atk.catalog')" :active="request()->routeIs('atk.*')">
+                    {{ __('Permintaan ATK') }}
+                </x-responsive-nav-link>
+            @endif
         </div>
         <div class="pt-2 pb-3 space-y-1">
             {{-- Menu Admin - hanya admin yang melihat --}}
