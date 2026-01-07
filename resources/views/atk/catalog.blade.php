@@ -90,6 +90,13 @@
                         </div>
                     @endforeach
                 </div>
+
+                {{-- Pagination --}}
+                @if ($items->hasPages())
+                    <div class="mt-6">
+                        {{ $items->links() }}
+                    </div>
+                @endif
             @endif
         </div>
     </div>

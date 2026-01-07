@@ -259,8 +259,9 @@ class AtkRequestWorkflowTest extends TestCase
     public function test_can_view_my_requests(): void
     {
         // Create a submitted request
+        $requestNumber = 'REQ-' . now()->format('Ym') . '-0001';
         $atkRequest = AtkRequest::create([
-            'request_number' => 'REQ-202601-0001',
+            'request_number' => $requestNumber,
             'period' => now()->format('Y-m'),
             'requested_by' => $this->user->id,
             'division_id' => $this->division->id,
@@ -277,14 +278,15 @@ class AtkRequestWorkflowTest extends TestCase
         $response = $this->actingAs($this->user)->get(route('atk.my-requests'));
 
         $response->assertStatus(200);
-        $response->assertSee('REQ-202601-0001');
+        $response->assertSee($requestNumber);
     }
 
     public function test_can_view_request_detail(): void
     {
         // Create a submitted request
+        $requestNumber = 'REQ-' . now()->format('Ym') . '-0001';
         $atkRequest = AtkRequest::create([
-            'request_number' => 'REQ-202601-0001',
+            'request_number' => $requestNumber,
             'period' => now()->format('Y-m'),
             'requested_by' => $this->user->id,
             'division_id' => $this->division->id,
@@ -301,7 +303,7 @@ class AtkRequestWorkflowTest extends TestCase
         $response = $this->actingAs($this->user)->get(route('atk.show', $atkRequest));
 
         $response->assertStatus(200);
-        $response->assertSee('REQ-202601-0001');
+        $response->assertSee($requestNumber);
         $response->assertSee($this->requestableItem->nama_barang);
         $response->assertSee('5');
     }
@@ -318,8 +320,9 @@ class AtkRequestWorkflowTest extends TestCase
         ]);
 
         // Create a request for other user
+        $requestNumber = 'REQ-' . now()->format('Ym') . '-0001';
         $atkRequest = AtkRequest::create([
-            'request_number' => 'REQ-202601-0001',
+            'request_number' => $requestNumber,
             'period' => now()->format('Y-m'),
             'requested_by' => $otherUser->id,
             'division_id' => $this->division->id,

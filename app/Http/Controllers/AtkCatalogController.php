@@ -19,7 +19,7 @@ class AtkCatalogController extends Controller
     {
         $items = Item::where('is_requestable', true)
             ->orderBy('nama_barang')
-            ->get();
+            ->paginate(18); // 18 items per page (3 columns x 6 rows)
 
         return view('atk.catalog', compact('items'));
     }
@@ -45,7 +45,7 @@ class AtkCatalogController extends Controller
         $period = now()->format('Y-m');
         $userId = Auth::id();
 
-        // Get user's division_id (assuming user has division_id)
+        // Get user's division_id (optional field)
         $divisionId = Auth::user()->division_id ?? null;
 
         DB::transaction(function () use ($validated, $period, $userId, $divisionId) {
@@ -162,9 +162,12 @@ class AtkCatalogController extends Controller
         }
 
         DB::transaction(function () use ($atkRequest, $period) {
-            // Generate request number
+            // Generate request number with database locking
             $yearMonth = now()->format('Ym');
+            
+            // Lock the table to prevent race conditions
             $lastRequest = AtkRequest::where('request_number', 'like', "REQ-{$yearMonth}%")
+                ->lockForUpdate()
                 ->orderBy('request_number', 'desc')
                 ->first();
 
