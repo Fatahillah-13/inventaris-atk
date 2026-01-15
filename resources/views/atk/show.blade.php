@@ -5,7 +5,7 @@
                 <h2 class="font-semibold text-xl text-gray-100 leading-tight">
                     Detail Permintaan
                 </h2>
-                <p class="text-xs text-gray-400">{{ $atkRequest->request_number }}</p>
+                <p class="text-xs text-gray-400">{{ $atkShopRequest->request_number }}</p>
             </div>
             <div class="flex flex-wrap gap-2">
                 <a href="{{ route('atk.my-requests') }}"
@@ -27,29 +27,29 @@
                 <div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <p class="text-xs text-slate-400 mb-1">Nomor Permintaan</p>
-                        <p class="text-sm font-semibold text-slate-100">{{ $atkRequest->request_number }}</p>
+                        <p class="text-sm font-semibold text-slate-100">{{ $atkShopRequest->request_number }}</p>
                     </div>
                     <div>
                         <p class="text-xs text-slate-400 mb-1">Status</p>
                         <span class="inline-flex items-center px-2 py-1 rounded text-xs font-semibold bg-blue-900/30 text-blue-300 border border-blue-700/50">
-                            {{ ucfirst($atkRequest->status) }}
+                            {{ ucfirst($atkShopRequest->status) }}
                         </span>
                     </div>
                     <div>
                         <p class="text-xs text-slate-400 mb-1">Periode</p>
-                        <p class="text-sm text-slate-200">{{ \Carbon\Carbon::createFromFormat('Y-m', $atkRequest->period)->format('F Y') }}</p>
+                        <p class="text-sm text-slate-200">{{ \Carbon\Carbon::createFromFormat('Y-m', $atkShopRequest->period)->format('F Y') }}</p>
                     </div>
                     <div>
                         <p class="text-xs text-slate-400 mb-1">Tanggal Diajukan</p>
-                        <p class="text-sm text-slate-200">{{ $atkRequest->submitted_at->format('d F Y, H:i') }}</p>
+                        <p class="text-sm text-slate-200">{{ $atkShopRequest->submitted_at->format('d F Y, H:i') }}</p>
                     </div>
                     <div>
                         <p class="text-xs text-slate-400 mb-1">Peminta</p>
-                        <p class="text-sm text-slate-200">{{ $atkRequest->requestedBy->name }}</p>
+                        <p class="text-sm text-slate-200">{{ $atkShopRequest->requestedBy->name }}</p>
                     </div>
                     <div>
                         <p class="text-xs text-slate-400 mb-1">Divisi</p>
-                        <p class="text-sm text-slate-200">{{ $atkRequest->division->nama ?? '-' }}</p>
+                        <p class="text-sm text-slate-200">{{ $atkShopRequest->division->nama ?? '-' }}</p>
                     </div>
                 </div>
             </div>
@@ -72,7 +72,7 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-800">
-                            @foreach ($atkRequest->items as $index => $requestItem)
+                            @foreach ($atkShopRequest->items as $index => $requestItem)
                                 <tr class="hover:bg-slate-800/30">
                                     <td class="px-4 py-3 text-slate-300">{{ $index + 1 }}</td>
                                     <td class="px-4 py-3 text-slate-100">{{ $requestItem->item->kode_barang }}</td>
@@ -85,11 +85,11 @@
                         <tfoot class="bg-slate-800/50 border-t border-slate-700">
                             <tr>
                                 <td colspan="4" class="px-4 py-3 text-right text-xs font-semibold text-slate-300">Total Item:</td>
-                                <td class="px-4 py-3 text-right text-sm font-bold text-slate-100">{{ $atkRequest->items->count() }} item</td>
+                                <td class="px-4 py-3 text-right text-sm font-bold text-slate-100">{{ $atkShopRequest->items->count() }} item</td>
                             </tr>
                             <tr>
                                 <td colspan="4" class="px-4 py-3 text-right text-xs font-semibold text-slate-300">Total Jumlah:</td>
-                                <td class="px-4 py-3 text-right text-sm font-bold text-slate-100">{{ $atkRequest->items->sum('qty') }}</td>
+                                <td class="px-4 py-3 text-right text-sm font-bold text-slate-100">{{ $atkShopRequest->items->sum('qty') }}</td>
                             </tr>
                         </tfoot>
                     </table>

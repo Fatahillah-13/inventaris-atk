@@ -41,7 +41,7 @@
                 </div>
             @endif
 
-            @if (!$atkRequest || $atkRequest->items->isEmpty())
+            @if (!$atkShopRequest || $atkShopRequest->items->isEmpty())
                 <div class="bg-slate-900 border border-slate-700/80 rounded-xl p-8 text-center">
                     <p class="text-slate-400 mb-4">Keranjang Anda kosong.</p>
                     <a href="{{ route('atk.catalog') }}"
@@ -56,7 +56,7 @@
                     </div>
 
                     <div class="divide-y divide-slate-800">
-                        @foreach ($atkRequest->items as $requestItem)
+                        @foreach ($atkShopRequest->items as $requestItem)
                             <div class="px-4 py-4 flex items-center justify-between gap-4">
                                 <div class="flex-1">
                                     <h4 class="font-semibold text-slate-100 text-sm">{{ $requestItem->item->nama_barang }}</h4>
@@ -98,11 +98,11 @@
                     <div class="px-4 py-4 border-t border-slate-800 bg-slate-900/50">
                         <div class="flex items-center justify-between mb-3">
                             <span class="text-sm text-slate-400">Total Item:</span>
-                            <span class="text-sm font-semibold text-slate-100">{{ $atkRequest->items->count() }} item</span>
+                            <span class="text-sm font-semibold text-slate-100">{{ $atkShopRequest->items->count() }} item</span>
                         </div>
                         <div class="flex items-center justify-between">
                             <span class="text-sm text-slate-400">Total Jumlah:</span>
-                            <span class="text-sm font-semibold text-slate-100">{{ $atkRequest->items->sum('qty') }}</span>
+                            <span class="text-sm font-semibold text-slate-100">{{ $atkShopRequest->items->sum('qty') }}</span>
                         </div>
                     </div>
 

@@ -88,11 +88,11 @@ Route::middleware(['auth', 'role:admin,staff_pengelola'])->group(function () {
         Route::get('/', [\App\Http\Controllers\AtkCatalogController::class, 'catalog'])->name('catalog');
         Route::post('/cart/items', [\App\Http\Controllers\AtkCatalogController::class, 'addToCart'])->name('cart.add');
         Route::get('/cart', [\App\Http\Controllers\AtkCatalogController::class, 'viewCart'])->name('cart');
-        Route::patch('/cart/items/{atkRequestItem}', [\App\Http\Controllers\AtkCatalogController::class, 'updateCartItem'])->name('cart.update');
-        Route::delete('/cart/items/{atkRequestItem}', [\App\Http\Controllers\AtkCatalogController::class, 'removeCartItem'])->name('cart.remove');
+        Route::patch('/cart/items/{atkShopRequestItem}', [\App\Http\Controllers\AtkCatalogController::class, 'updateCartItem'])->name('cart.update');
+        Route::delete('/cart/items/{atkShopRequestItem}', [\App\Http\Controllers\AtkCatalogController::class, 'removeCartItem'])->name('cart.remove');
         Route::post('/checkout', [\App\Http\Controllers\AtkCatalogController::class, 'checkout'])->name('checkout');
         Route::get('/requests', [\App\Http\Controllers\AtkCatalogController::class, 'myRequests'])->name('my-requests');
-        Route::get('/requests/{atkRequest}', [\App\Http\Controllers\AtkCatalogController::class, 'showRequest'])->name('show');
+        Route::get('/requests/{atkShopRequest}', [\App\Http\Controllers\AtkCatalogController::class, 'showRequest'])->name('show');
     });
 });
 
