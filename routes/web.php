@@ -53,11 +53,11 @@ Route::post('peminjaman', [LoanController::class, 'publicStore'])
     ->middleware('throttle:10,1'); // batasi submit
 
 // FORM PERMINTAAN ATK (TANPA LOGIN)
-Route::get('permintaan-atk', [AtkRequestController::class, 'publicCreate'])
+Route::get('permintaan_atk', [AtkRequestController::class, 'publicCreate'])
     ->name('public.requests.create')
     ->middleware('throttle:20,1');
 
-Route::post('permintaan-atk', [AtkRequestController::class, 'publicStore'])
+Route::post('permintaan_atk', [AtkRequestController::class, 'publicStore'])
     ->name('public.requests.store')
     ->middleware('throttle:10,1');
 
