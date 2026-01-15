@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\AtkRequest;
-use App\Models\AtkRequestItem;
+use App\Models\AtkShopRequest;
+use App\Models\AtkShopRequestItem;
 use App\Models\Item;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -50,7 +50,7 @@ class AtkCatalogController extends Controller
 
         DB::transaction(function () use ($validated, $period, $userId, $divisionId) {
             // Find or create draft request for this user+period
-            $atkRequest = AtkRequest::firstOrCreate(
+            $atkShopRequest = AtkShopRequest::firstOrCreate(
                 [
                     'requested_by' => $userId,
                     'period' => $period,
@@ -62,7 +62,7 @@ class AtkCatalogController extends Controller
             );
 
             // Check if item already in cart
-            $requestItem = AtkRequestItem::where('atk_request_id', $atkRequest->id)
+            $requestItem = AtkShopRequestItem::where('atk_shop_request_id', $atkShopRequest->id)
                 ->where('item_id', $validated['item_id'])
                 ->first();
 
@@ -71,8 +71,8 @@ class AtkCatalogController extends Controller
                 $requestItem->increment('qty', $validated['qty']);
             } else {
                 // Create new request item
-                AtkRequestItem::create([
-                    'atk_request_id' => $atkRequest->id,
+                AtkShopRequestItem::create([
+                    'atk_shop_request_id' => $atkShopRequest->id,
                     'item_id' => $validated['item_id'],
                     'qty' => $validated['qty'],
                 ]);
@@ -92,23 +92,23 @@ class AtkCatalogController extends Controller
         $period = now()->format('Y-m');
         $userId = Auth::id();
 
-        $atkRequest = AtkRequest::with(['items.item'])
+        $atkShopRequest = AtkShopRequest::with(['items.item'])
             ->where('requested_by', $userId)
             ->where('period', $period)
             ->where('status', 'draft')
             ->first();
 
-        return view('atk.cart', compact('atkRequest'));
+        return view('atk.cart', compact('atkShopRequest'));
     }
 
     /**
      * Update quantity of cart item
      */
-    public function updateCartItem(Request $request, AtkRequestItem $atkRequestItem)
+    public function updateCartItem(Request $request, AtkShopRequestItem $atkShopRequestItem)
     {
         // Ensure the item belongs to user's draft
-        if ($atkRequestItem->atkRequest->requested_by !== Auth::id() ||
-            $atkRequestItem->atkRequest->status !== 'draft') {
+        if ($atkShopRequestItem->atkShopRequest->requested_by !== Auth::id() ||
+            $atkShopRequestItem->atkShopRequest->status !== 'draft') {
             abort(403, 'Unauthorized');
         }
 
@@ -116,7 +116,7 @@ class AtkCatalogController extends Controller
             'qty' => 'required|integer|min:1',
         ]);
 
-        $atkRequestItem->update(['qty' => $validated['qty']]);
+        $atkShopRequestItem->update(['qty' => $validated['qty']]);
 
         return redirect()
             ->route('atk.cart')
@@ -126,15 +126,15 @@ class AtkCatalogController extends Controller
     /**
      * Remove item from cart
      */
-    public function removeCartItem(AtkRequestItem $atkRequestItem)
+    public function removeCartItem(AtkShopRequestItem $atkShopRequestItem)
     {
         // Ensure the item belongs to user's draft
-        if ($atkRequestItem->atkRequest->requested_by !== Auth::id() ||
-            $atkRequestItem->atkRequest->status !== 'draft') {
+        if ($atkShopRequestItem->atkShopRequest->requested_by !== Auth::id() ||
+            $atkShopRequestItem->atkShopRequest->status !== 'draft') {
             abort(403, 'Unauthorized');
         }
 
-        $atkRequestItem->delete();
+        $atkShopRequestItem->delete();
 
         return redirect()
             ->route('atk.cart')
@@ -149,24 +149,24 @@ class AtkCatalogController extends Controller
         $period = now()->format('Y-m');
         $userId = Auth::id();
 
-        $atkRequest = AtkRequest::with('items')
+        $atkShopRequest = AtkShopRequest::with('items')
             ->where('requested_by', $userId)
             ->where('period', $period)
             ->where('status', 'draft')
             ->first();
 
-        if (!$atkRequest || $atkRequest->items->isEmpty()) {
+        if (!$atkShopRequest || $atkShopRequest->items->isEmpty()) {
             return redirect()
                 ->route('atk.cart')
                 ->with('error', 'Keranjang kosong. Tambahkan item terlebih dahulu.');
         }
 
-        DB::transaction(function () use ($atkRequest, $period) {
+        DB::transaction(function () use ($atkShopRequest, $period) {
             // Generate request number with database locking
             $yearMonth = now()->format('Ym');
             
             // Lock the table to prevent race conditions
-            $lastRequest = AtkRequest::where('request_number', 'like', "REQ-{$yearMonth}%")
+            $lastRequest = AtkShopRequest::where('request_number', 'like', "REQ-{$yearMonth}%")
                 ->lockForUpdate()
                 ->orderBy('request_number', 'desc')
                 ->first();
@@ -180,7 +180,7 @@ class AtkCatalogController extends Controller
             $requestNumber = sprintf('REQ-%s-%04d', $yearMonth, $sequence);
 
             // Update request status
-            $atkRequest->update([
+            $atkShopRequest->update([
                 'request_number' => $requestNumber,
                 'status' => 'submitted',
                 'submitted_at' => now(),
@@ -189,7 +189,7 @@ class AtkCatalogController extends Controller
 
         return redirect()
             ->route('atk.my-requests')
-            ->with('success', 'Permintaan berhasil diajukan dengan nomor: ' . $atkRequest->request_number);
+            ->with('success', 'Permintaan berhasil diajukan dengan nomor: ' . $atkShopRequest->request_number);
     }
 
     /**
@@ -197,7 +197,7 @@ class AtkCatalogController extends Controller
      */
     public function myRequests()
     {
-        $requests = AtkRequest::with(['items.item', 'division'])
+        $requests = AtkShopRequest::with(['items.item', 'division'])
             ->where('requested_by', Auth::id())
             ->where('status', 'submitted')
             ->orderBy('submitted_at', 'desc')
@@ -209,15 +209,15 @@ class AtkCatalogController extends Controller
     /**
      * Show request detail
      */
-    public function showRequest(AtkRequest $atkRequest)
+    public function showRequest(AtkShopRequest $atkShopRequest)
     {
         // Ensure user can only view their own requests
-        if ($atkRequest->requested_by !== Auth::id()) {
+        if ($atkShopRequest->requested_by !== Auth::id()) {
             abort(403, 'Unauthorized');
         }
 
-        $atkRequest->load(['items.item', 'division', 'requestedBy']);
+        $atkShopRequest->load(['items.item', 'division', 'requestedBy']);
 
-        return view('atk.show', compact('atkRequest'));
+        return view('atk.show', compact('atkShopRequest'));
     }
 }

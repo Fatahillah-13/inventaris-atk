@@ -4,26 +4,43 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * Legacy ATK Request model for public form workflow
+ */
 class AtkRequest extends Model
 {
+    protected $table = 'atk_requests';
+    
     protected $fillable = [
-        'request_number',
-        'period',
+        'kode_request',
+        'item_id',
+        'user_id',
         'division_id',
-        'requested_by',
+        'peminta',
+        'departemen',
+        'jumlah',
+        'tanggal',
+        'keterangan',
         'status',
-        'submitted_at',
+        'approved_by',
+        'approved_at',
     ];
 
     protected $casts = [
-        'submitted_at' => 'datetime',
+        'tanggal' => 'date',
+        'approved_at' => 'datetime',
     ];
 
-    public function requestedBy(): BelongsTo
+    public function item(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'requested_by');
+        return $this->belongsTo(Item::class);
+    }
+
+    public function user(): BelongsTo
+    {
+        // user internal yang memproses (boleh null)
+        return $this->belongsTo(User::class);
     }
 
     public function division(): BelongsTo
@@ -31,18 +48,8 @@ class AtkRequest extends Model
         return $this->belongsTo(Division::class);
     }
 
-    public function items(): HasMany
+    public function approver(): BelongsTo
     {
-        return $this->hasMany(AtkRequestItem::class);
-    }
-
-    public function isDraft(): bool
-    {
-        return $this->status === 'draft';
-    }
-
-    public function isSubmitted(): bool
-    {
-        return $this->status === 'submitted';
+        return $this->belongsTo(User::class, 'approved_by');
     }
 }

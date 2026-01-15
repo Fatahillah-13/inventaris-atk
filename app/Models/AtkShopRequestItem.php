@@ -5,17 +5,19 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class AtkRequestItem extends Model
+class AtkShopRequestItem extends Model
 {
+    protected $table = 'atk_shop_request_items';
+    
     protected $fillable = [
-        'atk_request_id',
+        'atk_shop_request_id',
         'item_id',
         'qty',
     ];
 
-    public function atkRequest(): BelongsTo
+    public function atkShopRequest(): BelongsTo
     {
-        return $this->belongsTo(AtkRequest::class);
+        return $this->belongsTo(AtkShopRequest::class);
     }
 
     public function item(): BelongsTo

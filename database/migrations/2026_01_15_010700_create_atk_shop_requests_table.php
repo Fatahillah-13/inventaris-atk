@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('atk_requests', function (Blueprint $table) {
+        Schema::create('atk_shop_requests', function (Blueprint $table) {
             $table->id();
             $table->string('request_number')->nullable()->unique(); // REQ-202601-0001 for submitted requests
             $table->string('period'); // YYYY-MM format
@@ -21,8 +21,9 @@ return new class extends Migration
             $table->timestamp('submitted_at')->nullable();
             $table->timestamps();
             
-            // One draft per user per period
-            $table->unique(['requested_by', 'period', 'status']);
+            // One draft per user per period - handled by application logic
+            // to avoid blocking multiple submitted requests per period
+            $table->index(['requested_by', 'period', 'status']);
         });
     }
 
@@ -31,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('atk_requests');
+        Schema::dropIfExists('atk_shop_requests');
     }
 };
