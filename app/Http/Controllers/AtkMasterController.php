@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\AtkShopRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 class AtkMasterController extends Controller
 {
@@ -89,17 +88,15 @@ class AtkMasterController extends Controller
             'rejection_reason.max' => 'Alasan penolakan maksimal 1000 karakter.',
         ]);
 
-        DB::transaction(function () use ($atkShopRequest, $validated) {
-            // Update status to draft and clear submission data
-            $atkShopRequest->update([
-                'status' => 'draft',
-                'request_number' => null,
-                'submitted_at' => null,
-                'rejected_by' => Auth::id(),
-                'rejected_at' => now(),
-                'rejection_reason' => $validated['rejection_reason'],
-            ]);
-        });
+        // Update status to draft and clear submission data
+        $atkShopRequest->update([
+            'status' => 'draft',
+            'request_number' => null,
+            'submitted_at' => null,
+            'rejected_by' => Auth::id(),
+            'rejected_at' => now(),
+            'rejection_reason' => $validated['rejection_reason'],
+        ]);
 
         return redirect()
             ->route('atk-master.index')
