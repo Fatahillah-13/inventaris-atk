@@ -179,11 +179,14 @@ class AtkCatalogController extends Controller
 
             $requestNumber = sprintf('REQ-%s-%04d', $yearMonth, $sequence);
 
-            // Update request status
+            // Update request status and clear rejection fields if re-submitting
             $atkShopRequest->update([
                 'request_number' => $requestNumber,
                 'status' => 'submitted',
                 'submitted_at' => now(),
+                'rejected_by' => null,
+                'rejected_at' => null,
+                'rejection_reason' => null,
             ]);
         });
 
