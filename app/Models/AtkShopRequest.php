@@ -17,10 +17,17 @@ class AtkShopRequest extends Model
         'requested_by',
         'status',
         'submitted_at',
+        'approved_by',
+        'approved_at',
+        'rejected_by',
+        'rejected_at',
+        'rejection_reason',
     ];
 
     protected $casts = [
         'submitted_at' => 'datetime',
+        'approved_at' => 'datetime',
+        'rejected_at' => 'datetime',
     ];
 
     public function requestedBy(): BelongsTo
@@ -46,5 +53,20 @@ class AtkShopRequest extends Model
     public function isSubmitted(): bool
     {
         return $this->status === 'submitted';
+    }
+
+    public function isWaitingList(): bool
+    {
+        return $this->status === 'waiting_list';
+    }
+
+    public function approvedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'approved_by');
+    }
+
+    public function rejectedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'rejected_by');
     }
 }

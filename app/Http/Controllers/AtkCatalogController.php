@@ -92,7 +92,7 @@ class AtkCatalogController extends Controller
         $period = now()->format('Y-m');
         $userId = Auth::id();
 
-        $atkShopRequest = AtkShopRequest::with(['items.item'])
+        $atkShopRequest = AtkShopRequest::with(['items.item', 'rejectedBy'])
             ->where('requested_by', $userId)
             ->where('period', $period)
             ->where('status', 'draft')
@@ -197,9 +197,9 @@ class AtkCatalogController extends Controller
      */
     public function myRequests()
     {
-        $requests = AtkShopRequest::with(['items.item', 'division'])
+        $requests = AtkShopRequest::with(['items.item', 'division', 'rejectedBy', 'approvedBy'])
             ->where('requested_by', Auth::id())
-            ->where('status', 'submitted')
+            ->whereIn('status', ['submitted', 'waiting_list'])
             ->orderBy('submitted_at', 'desc')
             ->paginate(20);
 
@@ -216,7 +216,7 @@ class AtkCatalogController extends Controller
             abort(403, 'Unauthorized');
         }
 
-        $atkShopRequest->load(['items.item', 'division', 'requestedBy']);
+        $atkShopRequest->load(['items.item', 'division', 'requestedBy', 'approvedBy', 'rejectedBy']);
 
         return view('atk.show', compact('atkShopRequest'));
     }

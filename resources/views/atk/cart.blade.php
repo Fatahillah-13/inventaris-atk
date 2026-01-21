@@ -41,6 +41,29 @@
                 </div>
             @endif
 
+            @if ($atkShopRequest && $atkShopRequest->rejection_reason)
+                <div class="bg-amber-900/30 border border-amber-500/50 text-amber-200 px-4 py-3 rounded-lg text-sm">
+                    <div class="flex items-start gap-2">
+                        <svg class="w-5 h-5 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                        </svg>
+                        <div class="flex-1">
+                            <p class="font-semibold mb-1">Permintaan Anda Ditolak</p>
+                            <p class="text-xs mb-2">
+                                Ditolak oleh: <strong>{{ $atkShopRequest->rejectedBy->name ?? 'ATK Master' }}</strong> 
+                                pada {{ $atkShopRequest->rejected_at?->format('d M Y H:i') }}
+                            </p>
+                            <p class="text-sm">
+                                <strong>Alasan:</strong> {{ $atkShopRequest->rejection_reason }}
+                            </p>
+                            <p class="text-xs mt-2 italic">
+                                Silakan perbaiki permintaan Anda dan ajukan kembali.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
             @if (!$atkShopRequest || $atkShopRequest->items->isEmpty())
                 <div class="bg-slate-900 border border-slate-700/80 rounded-xl p-8 text-center">
                     <p class="text-slate-400 mb-4">Keranjang Anda kosong.</p>

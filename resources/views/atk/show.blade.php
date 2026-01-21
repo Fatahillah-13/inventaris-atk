@@ -31,9 +31,19 @@
                     </div>
                     <div>
                         <p class="text-xs text-slate-400 mb-1">Status</p>
-                        <span class="inline-flex items-center px-2 py-1 rounded text-xs font-semibold bg-blue-900/30 text-blue-300 border border-blue-700/50">
-                            {{ ucfirst($atkShopRequest->status) }}
-                        </span>
+                        @if ($atkShopRequest->status === 'submitted')
+                            <span class="inline-flex items-center px-2 py-1 rounded text-xs font-semibold bg-blue-900/30 text-blue-300 border border-blue-700/50">
+                                Submitted
+                            </span>
+                        @elseif ($atkShopRequest->status === 'waiting_list')
+                            <span class="inline-flex items-center px-2 py-1 rounded text-xs font-semibold bg-emerald-900/30 text-emerald-300 border border-emerald-700/50">
+                                Waiting List
+                            </span>
+                        @else
+                            <span class="inline-flex items-center px-2 py-1 rounded text-xs font-semibold bg-slate-700/30 text-slate-300 border border-slate-600/50">
+                                {{ ucfirst($atkShopRequest->status) }}
+                            </span>
+                        @endif
                     </div>
                     <div>
                         <p class="text-xs text-slate-400 mb-1">Periode</p>
@@ -51,8 +61,41 @@
                         <p class="text-xs text-slate-400 mb-1">Divisi</p>
                         <p class="text-sm text-slate-200">{{ $atkShopRequest->division->nama ?? '-' }}</p>
                     </div>
+                    @if ($atkShopRequest->approved_at)
+                        <div>
+                            <p class="text-xs text-slate-400 mb-1">Disetujui Oleh</p>
+                            <p class="text-sm text-slate-200">{{ $atkShopRequest->approvedBy->name ?? '-' }}</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-slate-400 mb-1">Tanggal Disetujui</p>
+                            <p class="text-sm text-slate-200">{{ $atkShopRequest->approved_at->format('d F Y, H:i') }}</p>
+                        </div>
+                    @endif
                 </div>
             </div>
+
+            {{-- Rejection Information (if rejected) --}}
+            @if ($atkShopRequest->rejection_reason)
+                <div class="bg-amber-900/20 border border-amber-500/50 rounded-xl overflow-hidden">
+                    <div class="px-4 py-3 border-b border-amber-700/50">
+                        <h3 class="text-sm font-semibold text-amber-200">Informasi Penolakan</h3>
+                    </div>
+                    <div class="p-4 space-y-3">
+                        <div>
+                            <p class="text-xs text-amber-300/70 mb-1">Ditolak Oleh</p>
+                            <p class="text-sm text-amber-100">{{ $atkShopRequest->rejectedBy->name ?? '-' }}</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-amber-300/70 mb-1">Tanggal Ditolak</p>
+                            <p class="text-sm text-amber-100">{{ $atkShopRequest->rejected_at?->format('d F Y, H:i') }}</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-amber-300/70 mb-1">Alasan Penolakan</p>
+                            <p class="text-sm text-amber-100">{{ $atkShopRequest->rejection_reason }}</p>
+                        </div>
+                    </div>
+                </div>
+            @endif
 
             {{-- Items List --}}
             <div class="bg-slate-900 border border-slate-700/80 rounded-xl overflow-hidden">

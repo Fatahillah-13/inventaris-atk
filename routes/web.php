@@ -96,6 +96,16 @@ Route::middleware(['auth', 'role:admin,staff_pengelola'])->group(function () {
     });
 });
 
+// Phase 2 ATK Master Approval Workflow
+Route::middleware(['auth', 'role:atk_master'])->group(function () {
+    Route::prefix('atk-master/permintaan-atk')->name('atk-master.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\AtkMasterController::class, 'index'])->name('index');
+        Route::get('/{atkShopRequest}', [\App\Http\Controllers\AtkMasterController::class, 'show'])->name('show');
+        Route::post('/{atkShopRequest}/approve', [\App\Http\Controllers\AtkMasterController::class, 'approve'])->name('approve');
+        Route::post('/{atkShopRequest}/reject', [\App\Http\Controllers\AtkMasterController::class, 'reject'])->name('reject');
+    });
+});
+
 require __DIR__ . '/auth.php';
 
 Route::middleware(['auth', 'role:admin'])->group(function () {
