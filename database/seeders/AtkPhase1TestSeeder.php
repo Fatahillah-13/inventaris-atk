@@ -34,18 +34,18 @@ class AtkPhase1TestSeeder extends Seeder
 
         // Create item categories
         $writingCategory = ItemCategory::firstOrCreate(
-            ['nama' => 'Alat Tulis'],
-            ['deskripsi' => 'Alat tulis dan keperluan menulis']
+            ['kode' => 'ATK-TULIS'],
+            ['nama' => 'Alat Tulis', 'is_active' => true]
         );
 
         $paperCategory = ItemCategory::firstOrCreate(
-            ['nama' => 'Kertas'],
-            ['deskripsi' => 'Berbagai jenis kertas']
+            ['kode' => 'ATK-KERTAS'],
+            ['nama' => 'Kertas', 'is_active' => true]
         );
 
         $officeCategory = ItemCategory::firstOrCreate(
-            ['nama' => 'Perlengkapan Kantor'],
-            ['deskripsi' => 'Perlengkapan umum kantor']
+            ['kode' => 'ATK-KANTOR'],
+            ['nama' => 'Perlengkapan Kantor', 'is_active' => true]
         );
 
         // Create requestable items
