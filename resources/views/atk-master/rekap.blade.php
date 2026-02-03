@@ -9,7 +9,7 @@
 
     <div class="py-6 bg-slate-950 min-h-screen">
         <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
-            <form method="GET" action="/rekap/export" class="mb-4 text-right">
+            <form method="GET" action="{{ route('atk-master.atkmaster.rekap.excel') }}" class="mb-4 text-right">
                 <input type="hidden" name="period" value="{{ $period }}">
                 <button type="submit"
                     class="inline-flex items-center px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white font-semibold rounded transition">
