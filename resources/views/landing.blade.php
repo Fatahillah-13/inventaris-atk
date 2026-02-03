@@ -110,45 +110,9 @@
 
                     {{-- Card aksi (horizontal) --}}
                     <div class="flex flex-col md:flex-row gap-5 md:gap-6 justify-center items-stretch fade-in-delayed">
-
-                        {{-- Card Permintaan ATK --}}
-                        <a href="{{ route('public.requests.create') }}"
-                            class="group flex-1 min-w-[260px] bg-slate-900/80 border border-slate-700/80 rounded-2xl px-5 py-5 sm:px-6 sm:py-6 flex flex-col justify-between hover:border-emerald-400 hover:bg-slate-900/95 transition shadow-md hover:shadow-emerald-500/20">
-                            <div class="flex items-start gap-4">
-                                {{-- Icon --}}
-                                <div
-                                    class="w-11 h-11 rounded-xl bg-slate-800 flex items-center justify-center group-hover:bg-emerald-500/90 transition">
-                                    <svg class="w-6 h-6 text-emerald-300 group-hover:text-white transition"
-                                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M9 12h6m-6 4h6M9 8h6m2-5H7a2 2 0 00-2 2v14l4-3 4 3 4-3 4 3V5a2 2 0 00-2-2z" />
-                                    </svg>
-                                </div>
-                                <div>
-                                    <h2 class="text-base sm:text-lg font-semibold text-slate-50 mb-1">
-                                        Permintaan ATK
-                                    </h2>
-                                    <p class="text-xs sm:text-sm text-slate-300">
-                                        Form permintaan alat tulis & kebutuhan kantor harian dari karyawan.
-                                    </p>
-                                </div>
-                            </div>
-                            <div class="mt-4 flex items-center justify-between text-xs text-slate-400">
-                                <span>Untuk Internal HRD</span>
-                                <span
-                                    class="inline-flex items-center gap-1 text-emerald-300 group-hover:text-emerald-200">
-                                    Isi formulir
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M9 5l7 7-7 7" />
-                                    </svg>
-                                </span>
-                            </div>
-                        </a>
-
                         {{-- Card Peminjaman Barang --}}
                         <a href="{{ route('public.loans.create') }}"
-                            class="group flex-1 min-w-[260px] bg-emerald-500/90 border border-emerald-400/80 rounded-2xl px-5 py-5 sm:px-6 sm:py-6 flex flex-col justify-between hover:bg-emerald-500 transition shadow-lg shadow-emerald-500/30">
+                            class="group flex-1 max-w-[500px] bg-emerald-500/90 border border-emerald-400/80 rounded-2xl px-5 py-5 sm:px-6 sm:py-6 flex flex-col justify-between hover:bg-emerald-500 transition shadow-lg shadow-emerald-500/30">
                             <div class="flex items-start gap-4">
                                 {{-- Icon --}}
                                 <div

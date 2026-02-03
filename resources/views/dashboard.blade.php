@@ -74,16 +74,31 @@
                 </a>
 
                 {{-- Permintaan ATK --}}
-                <a href="{{ route('requests.index') }}"
-                    class="bg-slate-900 border border-slate-700/80 rounded-xl p-4 flex items-center gap-3 hover:border-emerald-400 hover:bg-slate-900/90 transition">
-                    <div class="w-9 h-9 rounded-lg bg-slate-800 flex items-center justify-center">
-                        <span class="text-sm">📝</span>
-                    </div>
-                    <div>
-                        <p class="text-sm font-semibold text-slate-100">Permintaan ATK</p>
-                        <p class="text-xs text-slate-400">Daftar permintaan dari karyawan</p>
-                    </div>
-                </a>
+                @if (auth()->user()->role === 'admin' || auth()->user()->role === 'staff_pengelola')
+                    <a href="{{ route('atk.catalog') }}"
+                        class="bg-slate-900 border border-slate-700/80 rounded-xl p-4 flex items-center gap-3 hover:border-emerald-400 hover:bg-slate-900/90 transition">
+                        <div class="w-9 h-9 rounded-lg bg-slate-800 flex items-center justify-center">
+                            <span class="text-sm">📝</span>
+                        </div>
+                        <div>
+                            <p class="text-sm font-semibold text-slate-100">Permintaan ATK</p>
+                            <p class="text-xs text-slate-400">Request ATK Bulanan</p>
+                        </div>
+                    </a>
+                @endif
+
+                @if (auth()->user()->role === 'atk_master')
+                    <a href="{{ route('atk-master.index') }}"
+                        class="bg-slate-900 border border-slate-700/80 rounded-xl p-4 flex items-center gap-3 hover:border-emerald-400 hover:bg-slate-900/90 transition">
+                        <div class="w-9 h-9 rounded-lg bg-slate-800 flex items-center justify-center">
+                            <span class="text-sm">📝</span>
+                        </div>
+                        <div>
+                            <p class="text-sm font-semibold text-slate-100">Permintaan ATK</p>
+                            <p class="text-xs text-slate-400">Daftar permintaan dari karyawan</p>
+                        </div>
+                    </a>
+                @endif
             </div>
 
             {{-- Aktivitas terbaru (contoh stok movements) --}}
