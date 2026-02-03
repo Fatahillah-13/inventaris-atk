@@ -10,6 +10,7 @@ use App\Http\Controllers\AtkRequestController;
 use App\Http\Controllers\DivisionController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ItemCategoryController;
+use App\Http\Controllers\AtkShopRequestRekapController;
 
 Route::get('/', function () {
     return view('landing');
@@ -61,7 +62,7 @@ Route::post('permintaan_atk', [AtkRequestController::class, 'publicStore'])
     ->name('public.requests.store')
     ->middleware('throttle:10,1');
 
-Route::middleware(['auth', 'role:admin,staff_pengelola'])->group(function () {
+Route::middleware(['auth', 'role:admin,staff_pengelola,atk_master'])->group(function () {
     Route::resource('items', ItemController::class);
 
     // catatan barang masuk/keluar
@@ -103,8 +104,12 @@ Route::middleware(['auth', 'role:atk_master'])->group(function () {
         Route::get('/{atkShopRequest}', [\App\Http\Controllers\AtkMasterController::class, 'show'])->name('show');
         Route::post('/{atkShopRequest}/approve', [\App\Http\Controllers\AtkMasterController::class, 'approve'])->name('approve');
         Route::post('/{atkShopRequest}/reject', [\App\Http\Controllers\AtkMasterController::class, 'reject'])->name('reject');
+        Route::get('/rekap/index', [AtkShopRequestRekapController::class, 'index'])->name('atkmaster.rekap');
+        Route::get('/rekap/export', [AtkShopRequestRekapController::class, 'exportExcel'])->name('atkmaster.rekap.excel');
     });
 });
+
+// Route::prefix('atk-master/permintaan-atk')->middleware(['auth', 'role:atk_master'])->group(function () {});
 
 require __DIR__ . '/auth.php';
 

@@ -17,11 +17,11 @@ class AtkShopRequestItem extends Model
 
     public function atkShopRequest(): BelongsTo
     {
-        return $this->belongsTo(AtkShopRequest::class);
+        return $this->belongsTo(AtkShopRequest::class, 'atk_shop_request_id');
     }
 
     public function item(): BelongsTo
     {
-        return $this->belongsTo(Item::class);
+        return $this->belongsTo(Item::class, 'item_id');
     }
 }
