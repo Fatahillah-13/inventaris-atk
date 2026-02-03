@@ -131,10 +131,6 @@ class LoanController extends Controller
             ->where('can_be_loaned', true)
             ->first();
 
-        if (!$item->exists) {
-            abort(400, 'Barang tidak valid.');
-        }
-
         if (!$item) {
             return back()
                 ->withErrors(['item_id' => 'Barang ini tidak tersedia untuk peminjaman.'])
