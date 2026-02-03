@@ -25,13 +25,16 @@ Route::get('/register', function () {
 });
 
 Route::get('/ajax/divisions-by-item/{item}', [LoanController::class, 'getDivisionsByItem'])
-    ->name('ajax.divisions.byItem');
+    ->name('ajax.divisions.byItem')
+    ->middleware('throttle:20,1');
 
 Route::get('/ajax/employee-by-nik/{nik}', [LoanController::class, 'getEmployeeByNik'])
-    ->name('ajax.employee.byNik');
+    ->name('ajax.employee.byNik')
+    ->middleware('throttle:10,1');
 
 Route::get('/ajax/items-by-division/{division}', [StockMovementController::class, 'getItemsByDivision'])
-    ->name('ajax.items.byDivision');
+    ->name('ajax.items.byDivision')
+    ->middleware('throttle:20,1');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])
