@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class AtkShopRequest extends Model
 {
     protected $table = 'atk_shop_requests';
-    
+
     protected $fillable = [
         'request_number',
         'period',
