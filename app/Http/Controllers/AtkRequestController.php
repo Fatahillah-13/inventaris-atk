@@ -15,52 +15,52 @@ class AtkRequestController extends Controller
 {
     // === FORM PUBLIK (TANPA LOGIN) ===
 
-    public function publicCreate()
-    {
-        // tampilkan semua barang (atau bisa difilter stok > 0 kalau mau)
-        $items = Item::orderBy('nama_barang')->get();
-        $divisions = Division::orderBy('nama')->get();
+    // public function publicCreate()
+    // {
+    //     // tampilkan semua barang (atau bisa difilter stok > 0 kalau mau)
+    //     $items = Item::orderBy('nama_barang')->get();
+    //     $divisions = Division::orderBy('nama')->get();
 
-        return view('requests.public_create', compact('items', 'divisions'));
-    }
+    //     return view('requests.public_create', compact('items', 'divisions'));
+    // }
 
-    public function publicStore(Request $request)
-    {
-        $validated = $request->validate([
-            'item_id'    => 'required|exists:items,id',
-            'peminta'    => 'required|string|max:100',
-            'division_id' => 'required|exists:divisions,id',
-            'jumlah'     => 'required|integer|min:1',
-            'tanggal'    => 'required|date',
-            'keterangan' => 'nullable|string|max:255',
-        ]);
+    // public function publicStore(Request $request)
+    // {
+    //     $validated = $request->validate([
+    //         'item_id'    => 'required|exists:items,id',
+    //         'peminta'    => 'required|string|max:100',
+    //         'division_id' => 'required|exists:divisions,id',
+    //         'jumlah'     => 'required|integer|min:1',
+    //         'tanggal'    => 'required|date',
+    //         'keterangan' => 'nullable|string|max:255',
+    //     ]);
 
-        // kode permintaan
-        $kode = 'REQ-' . now()->format('YmdHis');
+    //     // kode permintaan
+    //     $kode = 'REQ-' . now()->format('YmdHis');
 
-        // user internal (kalau form ini diisi staf yang login), kalau public biasa -> null
-        $userId = Auth::check() ? Auth::id() : null;
+    //     // user internal (kalau form ini diisi staf yang login), kalau public biasa -> null
+    //     $userId = Auth::check() ? Auth::id() : null;
 
-        // simpan permintaan
-        AtkRequest::create([
-            'kode_request' => $kode,
-            'item_id'      => $validated['item_id'],
-            'user_id'      => $userId,
-            'division_id'  => $validated['division_id'],
-            'peminta'      => $validated['peminta'],
-            'departemen'   => Division::find($validated['division_id'])->nama,
-            'jumlah'       => $validated['jumlah'],
-            'tanggal'      => $validated['tanggal'],
-            'keterangan'   => $validated['keterangan'] ?? null,
-            'status'      => 'pending',
-            'approved_by' => null,
-            'approved_at' => null,
-        ]);
+    //     // simpan permintaan
+    //     AtkRequest::create([
+    //         'kode_request' => $kode,
+    //         'item_id'      => $validated['item_id'],
+    //         'user_id'      => $userId,
+    //         'division_id'  => $validated['division_id'],
+    //         'peminta'      => $validated['peminta'],
+    //         'departemen'   => Division::find($validated['division_id'])->nama,
+    //         'jumlah'       => $validated['jumlah'],
+    //         'tanggal'      => $validated['tanggal'],
+    //         'keterangan'   => $validated['keterangan'] ?? null,
+    //         'status'      => 'pending',
+    //         'approved_by' => null,
+    //         'approved_at' => null,
+    //     ]);
 
-        return redirect()
-            ->route('public.requests.create')
-            ->with('success', 'Permintaan ATK Anda telah dicatat. Silakan ambil barang di bagian ATK.');
-    }
+    //     return redirect()
+    //         ->route('public.requests.create')
+    //         ->with('success', 'Permintaan ATK Anda telah dicatat. Silakan ambil barang di bagian ATK.');
+    // }
 
     // === INTERNAL: DAFTAR PERMINTAAN (ADMIN & STAFF PENGELOLA) ===
     public function index(Request $request)

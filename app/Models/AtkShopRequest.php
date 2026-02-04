@@ -22,12 +22,16 @@ class AtkShopRequest extends Model
         'rejected_by',
         'rejected_at',
         'rejection_reason',
+        'waiting_list_at',
+        'finished_at',
     ];
 
     protected $casts = [
         'submitted_at' => 'datetime',
         'approved_at' => 'datetime',
         'rejected_at' => 'datetime',
+        'waiting_list_at' => 'datetime',
+        'finished_at' => 'datetime',
     ];
 
     public function requestedBy(): BelongsTo

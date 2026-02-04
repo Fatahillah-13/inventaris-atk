@@ -5,13 +5,9 @@
                 <h2 class="font-semibold text-xl text-gray-100 leading-tight">
                     Permintaan ATK
                 </h2>
-                <p class="text-xs text-gray-400">List permintaan ATK</p>
+                <p class="text-xs text-gray-400">List permintaan ATK yang menunggu persetujuan</p>
             </div>
             <div class="flex flex-wrap gap-2">
-                <a href="{{ route('atk-master.requestList') }}"
-                    class="inline-flex items-center px-3 py-2 rounded-md text-xs font-semibold bg-green-500 hover:bg-green-600 text-white">
-                    Request List
-                </a>
                 <a href="{{ route('atk-master.atkmaster.rekap') }}"
                     class="inline-flex items-center px-3 py-2 rounded-md text-xs font-semibold bg-blue-500 hover:bg-blue-600 text-white">
                     Rekap -> GA
@@ -55,47 +51,34 @@
                                 <tr>
                                     <th class="px-4 py-3 text-left text-xs font-semibold text-slate-300">No. Permintaan
                                     </th>
+                                    <th class="px-4 py-3 text-left text-xs font-semibold text-slate-300">Peminta</th>
                                     <th class="px-4 py-3 text-left text-xs font-semibold text-slate-300">Divisi</th>
                                     <th class="px-4 py-3 text-left text-xs font-semibold text-slate-300">Periode</th>
                                     <th class="px-4 py-3 text-left text-xs font-semibold text-slate-300">Tanggal Ajukan
                                     </th>
-                                    <th class="px-4 py-3 text-left text-xs font-semibold text-slate-300">Status</th>
+                                    <th class="px-4 py-3 text-left text-xs font-semibold text-slate-300">Total Item</th>
                                     <th class="px-4 py-3 text-left text-xs font-semibold text-slate-300">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-800">
                                 @foreach ($requests as $request)
                                     <tr class="hover:bg-slate-800/30">
+                                        <td class="px-4 py-3 text-slate-100 font-medium">{{ $request->request_number }}
+                                        </td>
+                                        <td class="px-4 py-3 text-slate-300">{{ $request->requestedBy->name }}</td>
+                                        <td class="px-4 py-3 text-slate-300">{{ $request->division->nama ?? '-' }}</td>
                                         <td class="px-4 py-3 text-slate-300">
-                                            {{ $request->request_number }}
+                                            {{ \Carbon\Carbon::createFromFormat('Y-m', $request->period)->format('F Y') }}
                                         </td>
                                         <td class="px-4 py-3 text-slate-300">
-                                            {{ $request->division_id ? $request->division->nama : 'N/A' }}
-                                        </td>
-                                        <td class="px-4 py-3 text-slate-300">
-                                            {{ $request->period }}
-                                        </td>
-                                        <td class="px-4 py-3 text-slate-300">
-                                            {{ $request->created_at->format('d M Y') }}
+                                            {{ $request->submitted_at->format('d M Y H:i') }}</td>
+                                        <td class="px-4 py-3 text-slate-300">{{ $request->items->count() }} item
+                                            ({{ $request->items->sum('qty') }} total)
                                         </td>
                                         <td class="px-4 py-3">
-                                            @php
-                                                $statusClasses = [
-                                                    'pending' => 'bg-yellow-500 text-white',
-                                                    'approved' => 'bg-green-500 text-white',
-                                                    'rejected' => 'bg-red-500 text-white',
-                                                ];
-                                                $statusClass = $statusClasses[$request->status] ?? 'bg-gray-500 text-white';
-                                            @endphp
-                                            <span
-                                                class="px-2 py-1 rounded-full text-xs font-semibold {{ $statusClass }}">
-                                                {{ ucfirst($request->status) }}
-                                            </span>
-                                        </td>
-                                        <td class="px-4 py-3">
-                                            <a href="{{ route('atk-master.show', $request->id) }}"
-                                                class="text-blue-400 hover:underline text-sm font-medium">
-                                                Lihat Detail
+                                            <a href="{{ route('atk-master.show', $request) }}"
+                                                class="text-emerald-400 hover:text-emerald-300 font-medium">
+                                                Lihat Detail →
                                             </a>
                                         </td>
                                     </tr>

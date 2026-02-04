@@ -104,9 +104,12 @@ Route::middleware(['auth', 'role:admin,staff_pengelola,atk_master'])->group(func
 Route::middleware(['auth', 'role:atk_master'])->group(function () {
     Route::prefix('atk-master/permintaan-atk')->name('atk-master.')->group(function () {
         Route::get('/', [\App\Http\Controllers\AtkMasterController::class, 'index'])->name('index');
+        Route::get('/request_list', [\App\Http\Controllers\AtkMasterController::class, 'requestList'])->name('requestList');
         Route::get('/{atkShopRequest}', [\App\Http\Controllers\AtkMasterController::class, 'show'])->name('show');
         Route::post('/{atkShopRequest}/approve', [\App\Http\Controllers\AtkMasterController::class, 'approve'])->name('approve');
         Route::post('/{atkShopRequest}/reject', [\App\Http\Controllers\AtkMasterController::class, 'reject'])->name('reject');
+        Route::post('/{atkShopRequest}/ready_to_pickup', [\App\Http\Controllers\AtkMasterController::class, 'readyToPickup'])->name('ready_to_pickup');
+        Route::post('/{atkShopRequest}/finish', [\App\Http\Controllers\AtkMasterController::class, 'finish'])->name('finish');
         Route::get('/rekap/index', [AtkShopRequestRekapController::class, 'index'])->name('atkmaster.rekap');
         Route::get('/rekap/export', [AtkShopRequestRekapController::class, 'exportExcel'])->name('atkmaster.rekap.excel');
     });
