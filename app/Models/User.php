@@ -50,6 +50,16 @@ class User extends Authenticatable
 
     public function atkRequests()
     {
-        return $this->hasMany(\App\Models\AtkRequest::class, 'requested_by');
+        return $this->hasMany(\App\Models\AtkRequest::class, 'user_id');
+    }
+
+    public function atkShopRequests()
+    {
+        return $this->hasMany(AtkShopRequest::class, 'requested_by');
+    }
+
+    public function division()
+    {
+        return $this->belongsTo(Division::class);
     }
 }
