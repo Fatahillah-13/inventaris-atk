@@ -82,7 +82,7 @@ class UserManagementTest extends TestCase
     /** @test */
     public function updating_user_without_password_preserves_existing_password()
     {
-        $originalPassword = 'original_password';
+        $originalPassword = 'SecurePassword123!';
         $user = User::factory()->create([
             'role' => 'staff_pengelola',
             'password' => Hash::make($originalPassword),
