@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\User;
 use App\Models\Division;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
 class UserManagementTest extends TestCase
@@ -84,7 +85,7 @@ class UserManagementTest extends TestCase
         $originalPassword = 'original_password';
         $user = User::factory()->create([
             'role' => 'staff_pengelola',
-            'password' => \Illuminate\Support\Facades\Hash::make($originalPassword),
+            'password' => Hash::make($originalPassword),
         ]);
         $division = Division::create(['nama' => 'Finance', 'kode' => 'FIN']);
 
@@ -114,6 +115,6 @@ class UserManagementTest extends TestCase
         $this->assertEquals($originalPasswordHash, $user->password);
         
         // Verify the original password still works
-        $this->assertTrue(\Illuminate\Support\Facades\Hash::check($originalPassword, $user->password));
+        $this->assertTrue(Hash::check($originalPassword, $user->password));
     }
 }
