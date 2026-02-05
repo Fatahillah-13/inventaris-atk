@@ -44,7 +44,7 @@ class UserManagementController extends Controller
             'name' => $validated['name'],
             'email' => $validated['email'],
             'role' => $validated['role'],
-            'division_id' => $validated['division_id'],
+            'division_id' => $validated['division_id'] ?? null,
             'password' => Hash::make($validated['password']),
         ]);
 
@@ -73,7 +73,7 @@ class UserManagementController extends Controller
         $user->name = $validated['name'];
         $user->email = $validated['email'];
         $user->role = $validated['role'];
-        $user->division_id = $validated['division_id'];
+        $user->division_id = $validated['division_id'] ?? null;
 
         if (!empty($validated['password'])) {
             $user->password = Hash::make($validated['password']);
