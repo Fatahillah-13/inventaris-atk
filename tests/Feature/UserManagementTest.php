@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\User;
 use App\Models\Division;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
 class UserManagementTest extends TestCase
@@ -96,6 +97,42 @@ class UserManagementTest extends TestCase
     }
 
     /** @test */
+    public function updating_user_without_password_preserves_existing_password()
+    {
+        $originalPassword = 'SecurePassword123!';
+        $user = User::factory()->create([
+            'role' => 'staff_pengelola',
+            'password' => Hash::make($originalPassword),
+        ]);
+        $division = Division::create(['nama' => 'Finance', 'kode' => 'FIN']);
+
+        // Store the original password hash
+        $originalPasswordHash = $user->password;
+
+        // Update user without providing password field
+        $response = $this->actingAs($this->admin)->put(route('users.update', $user), [
+            'name' => 'Updated Name',
+            'email' => $user->email,
+            'role' => 'admin',
+            'division_id' => $division->id,
+        ]);
+
+        $response->assertRedirect(route('users.index'));
+        
+        // Verify the user was updated
+        $this->assertDatabaseHas('users', [
+            'id' => $user->id,
+            'name' => 'Updated Name',
+            'role' => 'admin',
+            'division_id' => $division->id,
+        ]);
+
+        // Verify the password hash remains unchanged
+        $user->refresh();
+        $this->assertEquals($originalPasswordHash, $user->password);
+        
+        // Verify the original password still works
+        $this->assertTrue(Hash::check($originalPassword, $user->password));
     public function admin_can_create_user_without_division()
     {
         $response = $this->actingAs($this->admin)->post(route('users.store'), [
