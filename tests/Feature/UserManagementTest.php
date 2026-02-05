@@ -77,4 +77,174 @@ class UserManagementTest extends TestCase
             'division_id' => $division->id,
         ]);
     }
+
+    /** @test */
+    public function staff_pengelola_cannot_access_user_index()
+    {
+        $staff = User::factory()->create(['role' => 'staff_pengelola']);
+
+        $response = $this->actingAs($staff)->get(route('users.index'));
+
+        $response->assertStatus(403);
+    }
+
+    /** @test */
+    public function staff_pengelola_cannot_access_user_create()
+    {
+        $staff = User::factory()->create(['role' => 'staff_pengelola']);
+
+        $response = $this->actingAs($staff)->get(route('users.create'));
+
+        $response->assertStatus(403);
+    }
+
+    /** @test */
+    public function staff_pengelola_cannot_create_user()
+    {
+        $staff = User::factory()->create(['role' => 'staff_pengelola']);
+        $division = Division::create(['nama' => 'IT', 'kode' => 'IT']);
+
+        $response = $this->actingAs($staff)->post(route('users.store'), [
+            'name' => 'New User',
+            'email' => 'newuser@example.com',
+            'role' => 'staff_pengelola',
+            'division_id' => $division->id,
+            'password' => 'password123',
+            'password_confirmation' => 'password123',
+        ]);
+
+        $response->assertStatus(403);
+        $this->assertDatabaseMissing('users', [
+            'email' => 'newuser@example.com',
+        ]);
+    }
+
+    /** @test */
+    public function staff_pengelola_cannot_access_user_edit()
+    {
+        $staff = User::factory()->create(['role' => 'staff_pengelola']);
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($staff)->get(route('users.edit', $user));
+
+        $response->assertStatus(403);
+    }
+
+    /** @test */
+    public function staff_pengelola_cannot_update_user()
+    {
+        $staff = User::factory()->create(['role' => 'staff_pengelola']);
+        $user = User::factory()->create(['name' => 'Original Name']);
+
+        $response = $this->actingAs($staff)->put(route('users.update', $user), [
+            'name' => 'Modified Name',
+            'email' => $user->email,
+            'role' => 'admin',
+        ]);
+
+        $response->assertStatus(403);
+        $this->assertDatabaseHas('users', [
+            'id' => $user->id,
+            'name' => 'Original Name',
+        ]);
+    }
+
+    /** @test */
+    public function staff_pengelola_cannot_delete_user()
+    {
+        $staff = User::factory()->create(['role' => 'staff_pengelola']);
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($staff)->delete(route('users.destroy', $user));
+
+        $response->assertStatus(403);
+        $this->assertDatabaseHas('users', [
+            'id' => $user->id,
+        ]);
+    }
+
+    /** @test */
+    public function atk_master_cannot_access_user_index()
+    {
+        $atkMaster = User::factory()->create(['role' => 'atk_master']);
+
+        $response = $this->actingAs($atkMaster)->get(route('users.index'));
+
+        $response->assertStatus(403);
+    }
+
+    /** @test */
+    public function atk_master_cannot_access_user_create()
+    {
+        $atkMaster = User::factory()->create(['role' => 'atk_master']);
+
+        $response = $this->actingAs($atkMaster)->get(route('users.create'));
+
+        $response->assertStatus(403);
+    }
+
+    /** @test */
+    public function atk_master_cannot_create_user()
+    {
+        $atkMaster = User::factory()->create(['role' => 'atk_master']);
+        $division = Division::create(['nama' => 'IT', 'kode' => 'IT']);
+
+        $response = $this->actingAs($atkMaster)->post(route('users.store'), [
+            'name' => 'New User',
+            'email' => 'newuser@example.com',
+            'role' => 'staff_pengelola',
+            'division_id' => $division->id,
+            'password' => 'password123',
+            'password_confirmation' => 'password123',
+        ]);
+
+        $response->assertStatus(403);
+        $this->assertDatabaseMissing('users', [
+            'email' => 'newuser@example.com',
+        ]);
+    }
+
+    /** @test */
+    public function atk_master_cannot_access_user_edit()
+    {
+        $atkMaster = User::factory()->create(['role' => 'atk_master']);
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($atkMaster)->get(route('users.edit', $user));
+
+        $response->assertStatus(403);
+    }
+
+    /** @test */
+    public function atk_master_cannot_update_user()
+    {
+        $atkMaster = User::factory()->create(['role' => 'atk_master']);
+        $user = User::factory()->create(['name' => 'Original Name']);
+
+        $response = $this->actingAs($atkMaster)->put(route('users.update', $user), [
+            'name' => 'Modified Name',
+            'email' => $user->email,
+            'role' => 'admin',
+        ]);
+
+        $response->assertStatus(403);
+        $this->assertDatabaseHas('users', [
+            'id' => $user->id,
+            'name' => 'Original Name',
+        ]);
+    }
+
+    /** @test */
+    public function atk_master_cannot_delete_user()
+    {
+        $atkMaster = User::factory()->create(['role' => 'atk_master']);
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($atkMaster)->delete(route('users.destroy', $user));
+
+        $response->assertStatus(403);
+        $this->assertDatabaseHas('users', [
+            'id' => $user->id,
+        ]);
+    }
 }
