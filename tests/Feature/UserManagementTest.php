@@ -161,7 +161,7 @@ class UserManagementTest extends TestCase
         $this->assertDatabaseHas('users', [
             'id' => $user->id,
             'name' => 'Updated Without Division',
-            'division_id' => null,
+            'division_id' => $division->id, // Should preserve existing division
         ]);
     }
 }
