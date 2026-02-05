@@ -25,7 +25,7 @@ class RegistrationTest extends TestCase
             'password_confirmation' => 'password',
         ]);
 
-        // Returns 405 because only GET /register is defined
+        // Returns 405 because POST /register is not defined (registration is disabled)
         $response->assertStatus(405);
     }
 }
