@@ -6,6 +6,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Models\AtkRequest;
+use App\Models\AtkShopRequest;
+use App\Models\Division;
 
 class User extends Authenticatable
 {
@@ -50,6 +53,16 @@ class User extends Authenticatable
 
     public function atkRequests()
     {
-        return $this->hasMany(\App\Models\AtkRequest::class, 'requested_by');
+        return $this->hasMany(AtkRequest::class, 'user_id');
+    }
+
+    public function atkShopRequests()
+    {
+        return $this->hasMany(AtkShopRequest::class, 'requested_by');
+    }
+
+    public function division()
+    {
+        return $this->belongsTo(Division::class);
     }
 }

@@ -2,8 +2,8 @@
 
 namespace Tests\Feature;
 
-use App\Models\AtkRequest;
-use App\Models\AtkRequestItem;
+use App\Models\AtkShopRequest;
+use App\Models\AtkShopRequestItem;
 use App\Models\Division;
 use App\Models\Item;
 use App\Models\User;
@@ -94,13 +94,13 @@ class AtkRequestWorkflowTest extends TestCase
         $response->assertRedirect(route('atk.cart'));
         $response->assertSessionHas('success');
 
-        $this->assertDatabaseHas('atk_requests', [
+        $this->assertDatabaseHas('atk_shop_requests', [
             'requested_by' => $this->user->id,
             'period' => now()->format('Y-m'),
             'status' => 'draft',
         ]);
 
-        $this->assertDatabaseHas('atk_request_items', [
+        $this->assertDatabaseHas('atk_shop_request_items', [
             'item_id' => $this->requestableItem->id,
             'qty' => 5,
         ]);
@@ -120,11 +120,11 @@ class AtkRequestWorkflowTest extends TestCase
             'qty' => 2,
         ]);
 
-        $atkRequest = AtkRequest::where('requested_by', $this->user->id)
+        $atkRequest = AtkShopRequest::where('requested_by', $this->user->id)
             ->where('status', 'draft')
             ->first();
 
-        $requestItem = AtkRequestItem::where('atk_request_id', $atkRequest->id)
+        $requestItem = AtkShopRequestItem::where('atk_shop_request_id', $atkRequest->id)
             ->where('item_id', $this->requestableItem->id)
             ->first();
 
@@ -164,14 +164,14 @@ class AtkRequestWorkflowTest extends TestCase
             'qty' => 3,
         ]);
 
-        $requestItem = AtkRequestItem::first();
+        $requestItem = AtkShopRequestItem::first();
 
         $response = $this->actingAs($this->user)->patch(route('atk.cart.update', $requestItem), [
             'qty' => 7,
         ]);
 
         $response->assertRedirect(route('atk.cart'));
-        $this->assertDatabaseHas('atk_request_items', [
+        $this->assertDatabaseHas('atk_shop_request_items', [
             'id' => $requestItem->id,
             'qty' => 7,
         ]);
@@ -185,12 +185,12 @@ class AtkRequestWorkflowTest extends TestCase
             'qty' => 3,
         ]);
 
-        $requestItem = AtkRequestItem::first();
+        $requestItem = AtkShopRequestItem::first();
 
         $response = $this->actingAs($this->user)->delete(route('atk.cart.remove', $requestItem));
 
         $response->assertRedirect(route('atk.cart'));
-        $this->assertDatabaseMissing('atk_request_items', [
+        $this->assertDatabaseMissing('atk_shop_request_items', [
             'id' => $requestItem->id,
         ]);
     }
@@ -212,7 +212,7 @@ class AtkRequestWorkflowTest extends TestCase
             'qty' => 3,
         ]);
 
-        $requestItem = AtkRequestItem::first();
+        $requestItem = AtkShopRequestItem::first();
 
         // Try to update with current user
         $response = $this->actingAs($this->user)->patch(route('atk.cart.update', $requestItem), [
@@ -235,12 +235,12 @@ class AtkRequestWorkflowTest extends TestCase
         $response->assertRedirect(route('atk.my-requests'));
         $response->assertSessionHas('success');
 
-        $this->assertDatabaseHas('atk_requests', [
+        $this->assertDatabaseHas('atk_shop_requests', [
             'requested_by' => $this->user->id,
             'status' => 'submitted',
         ]);
 
-        $atkRequest = AtkRequest::where('requested_by', $this->user->id)
+        $atkRequest = AtkShopRequest::where('requested_by', $this->user->id)
             ->where('status', 'submitted')
             ->first();
 
@@ -260,7 +260,7 @@ class AtkRequestWorkflowTest extends TestCase
     {
         // Create a submitted request
         $requestNumber = 'REQ-' . now()->format('Ym') . '-0001';
-        $atkRequest = AtkRequest::create([
+        $atkRequest = AtkShopRequest::create([
             'request_number' => $requestNumber,
             'period' => now()->format('Y-m'),
             'requested_by' => $this->user->id,
@@ -269,8 +269,8 @@ class AtkRequestWorkflowTest extends TestCase
             'submitted_at' => now(),
         ]);
 
-        AtkRequestItem::create([
-            'atk_request_id' => $atkRequest->id,
+        AtkShopRequestItem::create([
+            'atk_shop_request_id' => $atkRequest->id,
             'item_id' => $this->requestableItem->id,
             'qty' => 5,
         ]);
@@ -285,7 +285,7 @@ class AtkRequestWorkflowTest extends TestCase
     {
         // Create a submitted request
         $requestNumber = 'REQ-' . now()->format('Ym') . '-0001';
-        $atkRequest = AtkRequest::create([
+        $atkRequest = AtkShopRequest::create([
             'request_number' => $requestNumber,
             'period' => now()->format('Y-m'),
             'requested_by' => $this->user->id,
@@ -294,8 +294,8 @@ class AtkRequestWorkflowTest extends TestCase
             'submitted_at' => now(),
         ]);
 
-        AtkRequestItem::create([
-            'atk_request_id' => $atkRequest->id,
+        AtkShopRequestItem::create([
+            'atk_shop_request_id' => $atkRequest->id,
             'item_id' => $this->requestableItem->id,
             'qty' => 5,
         ]);
@@ -321,7 +321,7 @@ class AtkRequestWorkflowTest extends TestCase
 
         // Create a request for other user
         $requestNumber = 'REQ-' . now()->format('Ym') . '-0001';
-        $atkRequest = AtkRequest::create([
+        $atkRequest = AtkShopRequest::create([
             'request_number' => $requestNumber,
             'period' => now()->format('Y-m'),
             'requested_by' => $otherUser->id,
@@ -345,7 +345,7 @@ class AtkRequestWorkflowTest extends TestCase
         ]);
         $this->actingAs($this->user)->post(route('atk.checkout'));
 
-        $firstRequest = AtkRequest::where('status', 'submitted')->first();
+        $firstRequest = AtkShopRequest::where('status', 'submitted')->first();
         $expectedPrefix = 'REQ-' . now()->format('Ym');
         $this->assertStringStartsWith($expectedPrefix, $firstRequest->request_number);
 
@@ -364,7 +364,7 @@ class AtkRequestWorkflowTest extends TestCase
         ]);
         $this->actingAs($otherUser)->post(route('atk.checkout'));
 
-        $secondRequest = AtkRequest::where('status', 'submitted')
+        $secondRequest = AtkShopRequest::where('status', 'submitted')
             ->where('requested_by', $otherUser->id)
             ->first();
 
@@ -399,7 +399,7 @@ class AtkRequestWorkflowTest extends TestCase
         ]);
 
         // Should only have one draft request
-        $drafts = AtkRequest::where('requested_by', $this->user->id)
+        $drafts = AtkShopRequest::where('requested_by', $this->user->id)
             ->where('period', now()->format('Y-m'))
             ->where('status', 'draft')
             ->get();

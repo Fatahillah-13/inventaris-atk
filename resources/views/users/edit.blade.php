@@ -61,6 +61,23 @@
                         </select>
                     </div>
 
+                    {{-- Divisi --}}
+                    <div>
+                        <label for="division_id" class="block text-sm font-medium text-gray-700">
+                            Divisi (opsional)
+                        </label>
+                        <select name="division_id" id="division_id"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500">
+                            <option value="">-- Tanpa Divisi --</option>
+                            @foreach ($divisions as $div)
+                                <option value="{{ $div->id }}"
+                                    {{ old('division_id', $user->division_id) == $div->id ? 'selected' : '' }}>
+                                    {{ $div->nama }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
                     {{-- Password baru (opsional) --}}
                     <div>
                         <label for="password" class="block text-sm font-medium text-gray-700">
