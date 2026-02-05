@@ -20,7 +20,7 @@ return new class extends Migration
             $table->enum('status', ['draft', 'submitted'])->default('draft');
             $table->timestamp('submitted_at')->nullable();
             $table->timestamps();
-            
+
             // One draft per user per period - handled by application logic
             // to avoid blocking multiple submitted requests per period
             $table->index(['requested_by', 'period', 'status']);

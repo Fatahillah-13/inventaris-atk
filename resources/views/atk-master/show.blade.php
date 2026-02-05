@@ -98,6 +98,7 @@
                                 <th class="px-4 py-3 text-left text-xs font-semibold text-slate-300">Kode Barang</th>
                                 <th class="px-4 py-3 text-left text-xs font-semibold text-slate-300">Nama Barang</th>
                                 <th class="px-4 py-3 text-left text-xs font-semibold text-slate-300">Satuan</th>
+                                <th class="px-4 py-3 text-center text-xs font-semibold text-slate-300">Status</th>
                                 <th class="px-4 py-3 text-right text-xs font-semibold text-slate-300">Jumlah</th>
                             </tr>
                         </thead>
@@ -109,6 +110,31 @@
                                         {{ $requestItem->item->kode_barang }}</td>
                                     <td class="px-4 py-3 text-slate-100">{{ $requestItem->item->nama_barang }}</td>
                                     <td class="px-4 py-3 text-slate-300">{{ $requestItem->item->satuan }}</td>
+                                    <td>
+                                        @if ($requestItem->status === 'pending')
+                                            @if ('atk_master')
+                                                <form method="POST" class="text-center"
+                                                    action="{{ route('atk-master.item-arrived', $requestItem) }}">
+                                                    @csrf
+                                                    <button class="text-green-900 bg-green-300 px-2 py-1 rounded">Tandai
+                                                        Datang</button>
+                                                </form>
+                                            @endif
+                                        @elseif($requestItem->status === 'arrived')
+                                            @if ('atk_master')
+                                                <form method="POST" class="text-center"
+                                                    action="{{ route('atk-master.item-taken', $requestItem) }}">
+                                                    @csrf
+                                                    <button class="text-blue-900 bg-blue-300 px-2 py-1 rounded">Ambil &
+                                                        Tambah ke Stok</button>
+                                                </form>
+                                            @endif
+                                        @else
+                                            <div class="text-center">
+                                                <span class="px-2 py-1 bg-blue-300 rounded">Sudah diambil</span>
+                                            </div>
+                                        @endif
+                                    </td>
                                     <td class="px-4 py-3 text-slate-100 text-right font-semibold">
                                         {{ $requestItem->qty }}</td>
                                 </tr>
@@ -116,7 +142,7 @@
                         </tbody>
                         <tfoot class="bg-slate-800/50 border-t border-slate-700">
                             <tr>
-                                <td colspan="4" class="px-4 py-3 text-right text-xs font-semibold text-slate-300">
+                                <td colspan="5" class="px-4 py-3 text-right text-xs font-semibold text-slate-300">
                                     Total</td>
                                 <td class="px-4 py-3 text-right text-sm font-bold text-slate-100">
                                     {{ $atkShopRequest->items->sum('qty') }}</td>

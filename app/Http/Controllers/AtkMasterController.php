@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\AtkShopRequest;
+use App\Models\AtkShopRequestItem;
+use App\Models\Item;
 use App\Models\ItemDivisionStock;
 use App\Models\StockMovement;
 use Illuminate\Http\Request;
@@ -121,6 +123,22 @@ class AtkMasterController extends Controller
             ->with('success', 'Permintaan telah ditolak dan dikembalikan ke peminta untuk diperbaiki.');
     }
 
+    public function markItemArrived(Request $request, AtkShopRequestItem $item)
+    {
+        // Validate status
+        if ($item->status !== 'pending') {
+            return back()->with('error', 'Item ini tidak dapat ditandai sebagai telah datang. Status saat ini: '.$item->status);
+        }
+
+        // Update status to arrived
+        $item->update([
+            'status' => 'arrived',
+            'arrived_at' => now(),
+        ]);
+
+        return back()->with('success', 'Item telah ditandai sebagai telah datang.');
+    }
+
     public function readytoPickup(AtkShopRequest $atkShopRequest)
     {
         // Pastikan status sudah approved sebelum berubah ke waiting_list
@@ -135,6 +153,82 @@ class AtkMasterController extends Controller
         ]);
 
         return redirect()->route('atk-master.index')->with('success', 'Barang telah datang. harap menunggu informasi pengambilan.');
+    }
+
+    public function markItemTaken(Request $request, AtkShopRequestItem $item){
+        DB::beginTransaction();
+        try {
+            $lockedItem = AtkShopRequestItem::lockForUpdate()->findOrFail($item->id);
+
+            // Validate status
+            if ($lockedItem->status !== 'arrived') {
+                DB::rollBack();
+
+                return back()->with('error', 'Item ini tidak dapat ditandai sebagai telah diambil. Status saat ini: '.$lockedItem->status);
+            }
+
+            $qty = (int) $lockedItem->qty;
+            if ($qty <= 0) {
+                DB::rollBack();
+
+                return back()->with('error', 'Qty item tidak valid.');
+            }
+
+            // Update status to taken
+            $lockedItem->update([
+                'status' => 'taken',
+                'taken_at' => now(),
+            ]);
+
+            $atkShopRequest = $lockedItem->atkShopRequest()->first();
+            $divisionId = $atkShopRequest?->division_id;
+            $itemId = $lockedItem->item_id;
+            $tanggal = now()->toDateString();
+            $ref = $atkShopRequest?->request_number ?: ('ATKSHOP-ITEM-'.$lockedItem->id);
+
+            if ($divisionId) {
+                // Tambahkan stok pada ItemDivisionStock jika ada division_id
+                $divisionStock = ItemDivisionStock::lockForUpdate()
+                    ->where('item_id', $itemId)
+                    ->where('division_id', $divisionId)
+                    ->first();
+
+                if (! $divisionStock) {
+                    $divisionStock = ItemDivisionStock::create([
+                        'item_id' => $itemId,
+                        'division_id' => $divisionId,
+                        'stok_terkini' => 0,
+                    ]);
+                }
+
+                $divisionStock->increment('stok_terkini', $qty);
+            } else {
+                // Jika request tidak memiliki divisi, tambahkan stok ke master item
+                $masterItem = Item::lockForUpdate()->findOrFail($itemId);
+                $masterItem->increment('stok_terkini', $qty);
+            }
+
+            // Catat stock movement (MASUK)
+            StockMovement::create([
+                'item_id' => $itemId,
+                'division_id' => $divisionId,
+                'jenis' => 'masuk',
+                'jumlah' => $qty,
+                'tanggal' => $tanggal,
+                'user_id' => Auth::id(),
+                'keterangan' => $divisionId
+                    ? ('Pengambilan ATK oleh divisi '.$divisionId.' (permintaan '.$ref.')')
+                    : ('Pengambilan ATK (tanpa divisi) (permintaan '.$ref.')'),
+            ]);
+
+            DB::commit();
+
+            return back()->with('success', 'Item telah ditandai sebagai telah diambil.');
+        } catch (\Throwable $e) {
+            DB::rollBack();
+
+            return back()->with('error', 'Gagal memproses pengambilan: '.$e->getMessage());
+        }
     }
 
     public function finish(Request $request, AtkShopRequest $atkShopRequest)
@@ -155,7 +249,7 @@ class AtkMasterController extends Controller
             $atkShopRequest->loadMissing(['items.item', 'division']);
 
             $tanggal = now()->toDateString();
-            $ref = $atkShopRequest->request_number ?: ('ATKSHOP-' . $atkShopRequest->id);
+            $ref = $atkShopRequest->request_number ?: ('ATKSHOP-'.$atkShopRequest->id);
 
             // Untuk setiap item di permintaan, tambahkan stok & catat stock movement (MASUK)
             foreach ($atkShopRequest->items as $itemDetail) {
@@ -192,7 +286,7 @@ class AtkMasterController extends Controller
                     'jumlah' => $qty,
                     'tanggal' => $tanggal,
                     'user_id' => Auth::id(),
-                    'keterangan' => 'Pengadaan ATK ' . $ref . ' (periode ' . $atkShopRequest->period . ') selesai - stok masuk',
+                    'keterangan' => 'Pengadaan ATK '.$ref.' (periode '.$atkShopRequest->period.') selesai - stok masuk',
                 ]);
             }
 

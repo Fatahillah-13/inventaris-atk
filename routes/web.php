@@ -1,16 +1,17 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ItemController;
-use App\Http\Controllers\StockMovementController;
-use App\Http\Controllers\LoanController;
-use App\Http\Controllers\UserManagementController;
+use App\Http\Controllers\AtkMasterController;
 use App\Http\Controllers\AtkRequestController;
-use App\Http\Controllers\DivisionController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\ItemCategoryController;
 use App\Http\Controllers\AtkShopRequestRekapController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DivisionController;
+use App\Http\Controllers\ItemCategoryController;
+use App\Http\Controllers\ItemController;
+use App\Http\Controllers\LoanController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\StockMovementController;
+use App\Http\Controllers\UserManagementController;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('landing');
@@ -103,21 +104,25 @@ Route::middleware(['auth', 'role:admin,staff_pengelola,atk_master'])->group(func
 // Phase 2 ATK Master Approval Workflow
 Route::middleware(['auth', 'role:atk_master'])->group(function () {
     Route::prefix('atk-master/permintaan-atk')->name('atk-master.')->group(function () {
-        Route::get('/', [\App\Http\Controllers\AtkMasterController::class, 'index'])->name('index');
-        Route::get('/request_list', [\App\Http\Controllers\AtkMasterController::class, 'requestList'])->name('requestList');
-        Route::get('/{atkShopRequest}', [\App\Http\Controllers\AtkMasterController::class, 'show'])->name('show');
-        Route::post('/{atkShopRequest}/approve', [\App\Http\Controllers\AtkMasterController::class, 'approve'])->name('approve');
-        Route::post('/{atkShopRequest}/reject', [\App\Http\Controllers\AtkMasterController::class, 'reject'])->name('reject');
-        Route::post('/{atkShopRequest}/ready_to_pickup', [\App\Http\Controllers\AtkMasterController::class, 'readyToPickup'])->name('ready_to_pickup');
-        Route::post('/{atkShopRequest}/finish', [\App\Http\Controllers\AtkMasterController::class, 'finish'])->name('finish');
+        Route::get('/', [AtkMasterController::class, 'index'])->name('index');
+        Route::get('/request_list', [AtkMasterController::class, 'requestList'])->name('requestList');
+        Route::get('/{atkShopRequest}', [AtkMasterController::class, 'show'])->name('show');
+        Route::post('/{atkShopRequest}/approve', [AtkMasterController::class, 'approve'])->name('approve');
+        Route::post('/{atkShopRequest}/reject', [AtkMasterController::class, 'reject'])->name('reject');
+        Route::post('/{atkShopRequest}/ready_to_pickup', [AtkMasterController::class, 'readyToPickup'])->name('ready_to_pickup');
+        Route::post('/{atkShopRequest}/finish', [AtkMasterController::class, 'finish'])->name('finish');
         Route::get('/rekap/index', [AtkShopRequestRekapController::class, 'index'])->name('atkmaster.rekap');
         Route::get('/rekap/export', [AtkShopRequestRekapController::class, 'exportExcel'])->name('atkmaster.rekap.excel');
+        Route::post('/item/{item}/arrived', [AtkMasterController::class, 'markItemArrived'])
+            ->name('item-arrived');
+        Route::post('/item/{item}/taken', [AtkMasterController::class, 'markItemTaken'])
+            ->name('item-taken');
     });
 });
 
 // Route::prefix('atk-master/permintaan-atk')->middleware(['auth', 'role:atk_master'])->group(function () {});
 
-require __DIR__ . '/auth.php';
+require __DIR__.'/auth.php';
 
 Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('users', [UserManagementController::class, 'index'])->name('users.index');

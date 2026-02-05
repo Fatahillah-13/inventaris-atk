@@ -8,11 +8,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class AtkShopRequestItem extends Model
 {
     protected $table = 'atk_shop_request_items';
-    
+
     protected $fillable = [
         'atk_shop_request_id',
         'item_id',
         'qty',
+        'status',
+        'arrived_at',
+        'taken_at',
     ];
 
     public function atkShopRequest(): BelongsTo
