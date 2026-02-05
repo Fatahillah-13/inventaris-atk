@@ -17,6 +17,23 @@ class UserManagementTest extends TestCase
         $this->admin = User::factory()->create(['role' => 'admin']);
     }
 
+    private function createTestDivision(string $nama = 'IT', string $kode = 'IT'): Division
+    {
+        return Division::create(['nama' => $nama, 'kode' => $kode]);
+    }
+
+    private function getNewUserData(Division $division): array
+    {
+        return [
+            'name' => 'New User',
+            'email' => 'newuser@example.com',
+            'role' => 'staff_pengelola',
+            'division_id' => $division->id,
+            'password' => 'password123',
+            'password_confirmation' => 'password123',
+        ];
+    }
+
     /** @test */
     public function admin_can_see_user_list_with_division()
     {
@@ -102,16 +119,9 @@ class UserManagementTest extends TestCase
     public function staff_pengelola_cannot_create_user()
     {
         $staff = User::factory()->create(['role' => 'staff_pengelola']);
-        $division = Division::create(['nama' => 'IT', 'kode' => 'IT']);
+        $division = $this->createTestDivision();
 
-        $response = $this->actingAs($staff)->post(route('users.store'), [
-            'name' => 'New User',
-            'email' => 'newuser@example.com',
-            'role' => 'staff_pengelola',
-            'division_id' => $division->id,
-            'password' => 'password123',
-            'password_confirmation' => 'password123',
-        ]);
+        $response = $this->actingAs($staff)->post(route('users.store'), $this->getNewUserData($division));
 
         $response->assertStatus(403);
         $this->assertDatabaseMissing('users', [
@@ -187,16 +197,9 @@ class UserManagementTest extends TestCase
     public function atk_master_cannot_create_user()
     {
         $atkMaster = User::factory()->create(['role' => 'atk_master']);
-        $division = Division::create(['nama' => 'IT', 'kode' => 'IT']);
+        $division = $this->createTestDivision();
 
-        $response = $this->actingAs($atkMaster)->post(route('users.store'), [
-            'name' => 'New User',
-            'email' => 'newuser@example.com',
-            'role' => 'staff_pengelola',
-            'division_id' => $division->id,
-            'password' => 'password123',
-            'password_confirmation' => 'password123',
-        ]);
+        $response = $this->actingAs($atkMaster)->post(route('users.store'), $this->getNewUserData($division));
 
         $response->assertStatus(403);
         $this->assertDatabaseMissing('users', [
