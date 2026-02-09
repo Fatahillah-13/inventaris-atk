@@ -130,13 +130,28 @@ class AtkMasterController extends Controller
             return back()->with('error', 'Item ini tidak dapat ditandai sebagai telah datang. Status saat ini: '.$item->status);
         }
 
-        // Update status to arrived
-        $item->update([
-            'status' => 'arrived',
-            'arrived_at' => now(),
-        ]);
+        DB::beginTransaction();
+        try {
+            $lockedItem = AtkShopRequestItem::lockForUpdate()->findOrFail($item->id);
 
-        return back()->with('success', 'Item telah ditandai sebagai telah datang.');
+            $lockedItem->update([
+                'status' => 'arrived',
+                'arrived_at' => now(),
+            ]);
+
+            $atkShopRequest = $lockedItem->atkShopRequest()->lockForUpdate()->first();
+            if ($atkShopRequest) {
+                $this->syncRequestStatus($atkShopRequest);
+            }
+
+            DB::commit();
+
+            return back()->with('success', 'Item telah ditandai sebagai telah datang.');
+        } catch (\Throwable $th) {
+            // throw $th;
+            DB::rollBack();
+            return back()->with('error', 'Gagal menandai item sebagai telah datang: '.$th->getMessage());
+        }
     }
 
     public function readytoPickup(AtkShopRequest $atkShopRequest)
@@ -155,7 +170,8 @@ class AtkMasterController extends Controller
         return redirect()->route('atk-master.index')->with('success', 'Barang telah datang. harap menunggu informasi pengambilan.');
     }
 
-    public function markItemTaken(Request $request, AtkShopRequestItem $item){
+    public function markItemTaken(Request $request, AtkShopRequestItem $item)
+    {
         DB::beginTransaction();
         try {
             $lockedItem = AtkShopRequestItem::lockForUpdate()->findOrFail($item->id);
@@ -298,5 +314,50 @@ class AtkMasterController extends Controller
 
             return back()->with('error', 'Gagal update stok: '.$e->getMessage());
         }
+    }
+
+    private function syncRequestStatus(AtkShopRequest $atkShopRequest): void
+    {
+        // Pastikan items sudah ada, kalau belum load
+        $atkShopRequest->loadMissing('items');
+
+        $total = $atkShopRequest->items->count();
+        if ($total === 0) {
+            // Kalau tidak ada item, biarkan saja (atau tentukan aturan sendiri)
+            return;
+        }
+
+        $pendingCount = $atkShopRequest->items->where('status', 'pending')->count();
+        $arrivedCount = $atkShopRequest->items->where('status', 'arrived')->count();
+        $takenCount = $atkShopRequest->items->where('status', 'taken')->count();
+
+        // Jangan ganggu request yang masih draft/submitted (optional, tapi umumnya benar)
+        if (in_array($atkShopRequest->status, ['draft', 'submitted'], true)) {
+            return;
+        }
+
+        // Rule 1: kalau semua item taken => done
+        if ($takenCount === $total) {
+            $atkShopRequest->update(['status' => 'done']);
+
+            return;
+        }
+
+        // Rule 2 (pilihan kamu #2 B): kalau minimal ada yang arrived ATAU taken (taken artinya sudah lewat arrived)
+        if (($arrivedCount + $takenCount) > 0) {
+            $atkShopRequest->update(['status' => 'ready_to_pickup']);
+
+            return;
+        }
+
+        // Rule 3: kalau belum ada yang arrived sama sekali => waiting_list
+        if ($pendingCount === $total) {
+            $atkShopRequest->update(['status' => 'waiting_list']);
+
+            return;
+        }
+
+        // Fallback: kalau ada status aneh/baru, set minimal ready_to_pickup
+        $atkShopRequest->update(['status' => 'ready_to_pickup']);
     }
 }
