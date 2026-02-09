@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Item;
-use Illuminate\Http\Request;
 use App\Models\ItemCategory;
+use Illuminate\Http\Request;
 
 class ItemController extends Controller
 {
@@ -15,7 +15,8 @@ class ItemController extends Controller
 
     public function index(Request $request)
     {
-        $query = Item::with(['divisionStocks.division']); // penting: eager load
+        // Eager load category to prevent N+1 in view
+        $query = Item::with(['divisionStocks.division', 'category']);
 
         if ($request->filled('q')) {
             $search = $request->q;
@@ -44,24 +45,24 @@ class ItemController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'kode_barang'   => 'required|unique:items,kode_barang',
-            'nama_barang'   => 'required',
-            'category_id'   => 'nullable|exists:item_categories,id',
-            'satuan'        => 'required',
-            'catatan'       => 'nullable|string',
+            'kode_barang' => 'required|unique:items,kode_barang',
+            'nama_barang' => 'required',
+            'category_id' => 'nullable|exists:item_categories,id',
+            'satuan' => 'required',
+            'catatan' => 'nullable|string',
             'can_be_loaned' => 'nullable|boolean',
         ]);
 
         $item = Item::create([
-            'kode_barang'   => $validated['kode_barang'],
-            'nama_barang'   => $validated['nama_barang'],
-            'category_id'   => $validated['category_id'],
+            'kode_barang' => $validated['kode_barang'],
+            'nama_barang' => $validated['nama_barang'],
+            'category_id' => $validated['category_id'],
             // kalau kamu masih ingin isi item_category string:
             'item_category' => ItemCategory::find($validated['category_id'])->kode ?? null,
-            'satuan'        => $validated['satuan'],
-            'stok_awal'     => 0,
-            'stok_terkini'  => 0,
-            'catatan'       => $validated['catatan'] ?? null,
+            'satuan' => $validated['satuan'],
+            'stok_awal' => 0,
+            'stok_terkini' => 0,
+            'catatan' => $validated['catatan'] ?? null,
             'can_be_loaned' => $request->has('can_be_loaned'),
         ]);
 
@@ -81,22 +82,22 @@ class ItemController extends Controller
     public function update(Request $request, Item $item)
     {
         $validated = $request->validate([
-            'kode_barang'   => 'required|unique:items,kode_barang,' . $item->id,
-            'nama_barang'   => 'required',
-            'category_id'   => 'nullable|exists:item_categories,id',
-            'satuan'        => 'required',
+            'kode_barang' => 'required|unique:items,kode_barang,'.$item->id,
+            'nama_barang' => 'required',
+            'category_id' => 'nullable|exists:item_categories,id',
+            'satuan' => 'required',
             // 'stok_awal'     => 'required|integer|min:0',
-            'catatan'       => 'nullable|string',
+            'catatan' => 'nullable|string',
             'can_be_loaned' => 'nullable|boolean',
         ]);
 
         $item->update([
-            'kode_barang'   => $validated['kode_barang'],
-            'nama_barang'   => $validated['nama_barang'],
-            'category_id'   => $validated['category_id'],
+            'kode_barang' => $validated['kode_barang'],
+            'nama_barang' => $validated['nama_barang'],
+            'category_id' => $validated['category_id'],
             'item_category' => ItemCategory::find($validated['category_id'])->kode ?? $item->item_category,
-            'satuan'        => $validated['satuan'],
-            'catatan'       => $validated['catatan'] ?? null,
+            'satuan' => $validated['satuan'],
+            'catatan' => $validated['catatan'] ?? null,
             'can_be_loaned' => $request->has('can_be_loaned'),
         ]);
 
@@ -107,6 +108,7 @@ class ItemController extends Controller
     public function destroy(Item $item)
     {
         $item->delete();
+
         return redirect()->route('items.index')->with('success', 'Barang berhasil dihapus.');
     }
 
