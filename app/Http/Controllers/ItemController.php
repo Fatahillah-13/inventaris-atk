@@ -54,17 +54,12 @@ class ItemController extends Controller
         ]);
 
         $categoryId = $validated['category_id'] ?? null;
-        $itemCategory = null;
-        if ($categoryId) {
-            $category = ItemCategory::find($categoryId);
-            $itemCategory = $category?->kode;
-        }
 
         $item = Item::create([
             'kode_barang' => $validated['kode_barang'],
             'nama_barang' => $validated['nama_barang'],
             'category_id' => $categoryId,
-            'item_category' => $itemCategory,
+            'item_category' => $this->getCategoryCode($categoryId),
             'satuan' => $validated['satuan'],
             'stok_awal' => 0,
             'stok_terkini' => 0,
@@ -109,13 +104,7 @@ class ItemController extends Controller
         if (array_key_exists('category_id', $validated)) {
             $categoryId = $validated['category_id'];
             $updateData['category_id'] = $categoryId;
-            
-            if ($categoryId) {
-                $category = ItemCategory::find($categoryId);
-                $updateData['item_category'] = $category?->kode;
-            } else {
-                $updateData['item_category'] = null;
-            }
+            $updateData['item_category'] = $this->getCategoryCode($categoryId);
         }
 
         $item->update($updateData);
@@ -134,5 +123,18 @@ class ItemController extends Controller
     public function show(Item $item)
     {
         return view('items.show', compact('item'));
+    }
+
+    /**
+     * Get category code from category ID
+     */
+    private function getCategoryCode(?int $categoryId): ?string
+    {
+        if (!$categoryId) {
+            return null;
+        }
+        
+        $category = ItemCategory::find($categoryId);
+        return $category?->kode;
     }
 }
