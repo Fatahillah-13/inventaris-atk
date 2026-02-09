@@ -8,7 +8,6 @@ use App\Models\Item;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\Rule;
 
 class AtkCatalogController extends Controller
 {
@@ -17,7 +16,9 @@ class AtkCatalogController extends Controller
      */
     public function catalog()
     {
-        $items = Item::where('is_requestable', true)
+        // Eager load category to prevent N+1 when displaying category names
+        $items = Item::with('category')
+            ->where('is_requestable', true)
             ->orderBy('nama_barang')
             ->paginate(18); // 18 items per page (3 columns x 6 rows)
 
@@ -36,7 +37,7 @@ class AtkCatalogController extends Controller
 
         // Verify item is requestable
         $item = Item::findOrFail($validated['item_id']);
-        if (!$item->is_requestable) {
+        if (! $item->is_requestable) {
             return redirect()
                 ->back()
                 ->with('error', 'Item ini tidak dapat diminta.');
@@ -155,16 +156,16 @@ class AtkCatalogController extends Controller
             ->where('status', 'draft')
             ->first();
 
-        if (!$atkShopRequest || $atkShopRequest->items->isEmpty()) {
+        if (! $atkShopRequest || $atkShopRequest->items->isEmpty()) {
             return redirect()
                 ->route('atk.cart')
                 ->with('error', 'Keranjang kosong. Tambahkan item terlebih dahulu.');
         }
 
-        DB::transaction(function () use ($atkShopRequest, $period) {
+        DB::transaction(function () use ($atkShopRequest) {
             // Generate request number with database locking
             $yearMonth = now()->format('Ym');
-            
+
             // Lock the table to prevent race conditions
             $lastRequest = AtkShopRequest::where('request_number', 'like', "REQ-{$yearMonth}%")
                 ->lockForUpdate()
@@ -192,7 +193,7 @@ class AtkCatalogController extends Controller
 
         return redirect()
             ->route('atk.my-requests')
-            ->with('success', 'Permintaan berhasil diajukan dengan nomor: ' . $atkShopRequest->request_number);
+            ->with('success', 'Permintaan berhasil diajukan dengan nomor: '.$atkShopRequest->request_number);
     }
 
     /**
