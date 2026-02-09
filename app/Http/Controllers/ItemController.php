@@ -53,12 +53,13 @@ class ItemController extends Controller
             'can_be_loaned' => 'nullable|boolean',
         ]);
 
+        $categoryId = $validated['category_id'] ?? null;
+
         $item = Item::create([
             'kode_barang' => $validated['kode_barang'],
             'nama_barang' => $validated['nama_barang'],
-            'category_id' => $validated['category_id'],
-            // kalau kamu masih ingin isi item_category string:
-            'item_category' => ItemCategory::find($validated['category_id'])->kode ?? null,
+            'category_id' => $categoryId,
+            'item_category' => $this->getCategoryCode($categoryId),
             'satuan' => $validated['satuan'],
             'stok_awal' => 0,
             'stok_terkini' => 0,
@@ -91,15 +92,22 @@ class ItemController extends Controller
             'can_be_loaned' => 'nullable|boolean',
         ]);
 
-        $item->update([
+        $updateData = [
             'kode_barang' => $validated['kode_barang'],
             'nama_barang' => $validated['nama_barang'],
-            'category_id' => $validated['category_id'],
-            'item_category' => ItemCategory::find($validated['category_id'])->kode ?? $item->item_category,
             'satuan' => $validated['satuan'],
             'catatan' => $validated['catatan'] ?? null,
             'can_be_loaned' => $request->has('can_be_loaned'),
-        ]);
+        ];
+
+        // Only update category if it's provided in the request
+        if (array_key_exists('category_id', $validated)) {
+            $categoryId = $validated['category_id'];
+            $updateData['category_id'] = $categoryId;
+            $updateData['item_category'] = $this->getCategoryCode($categoryId);
+        }
+
+        $item->update($updateData);
 
         return redirect()->route('items.index')
             ->with('success', 'Data barang berhasil diperbarui.');
@@ -115,5 +123,18 @@ class ItemController extends Controller
     public function show(Item $item)
     {
         return view('items.show', compact('item'));
+    }
+
+    /**
+     * Get category code from category ID
+     */
+    private function getCategoryCode(?int $categoryId): ?string
+    {
+        if (!$categoryId) {
+            return null;
+        }
+
+        $category = ItemCategory::find($categoryId);
+        return $category?->kode;
     }
 }
