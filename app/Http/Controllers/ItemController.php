@@ -133,7 +133,7 @@ class ItemController extends Controller
         if (!$categoryId) {
             return null;
         }
-        
+
         $category = ItemCategory::find($categoryId);
         return $category?->kode;
     }
