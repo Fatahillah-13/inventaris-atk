@@ -53,12 +53,18 @@ class ItemController extends Controller
             'can_be_loaned' => 'nullable|boolean',
         ]);
 
+        $categoryId = $validated['category_id'] ?? null;
+        $itemCategory = null;
+        if ($categoryId) {
+            $category = ItemCategory::find($categoryId);
+            $itemCategory = $category?->kode;
+        }
+
         $item = Item::create([
             'kode_barang' => $validated['kode_barang'],
             'nama_barang' => $validated['nama_barang'],
-            'category_id' => $validated['category_id'],
-            // kalau kamu masih ingin isi item_category string:
-            'item_category' => ItemCategory::find($validated['category_id'])->kode ?? null,
+            'category_id' => $categoryId,
+            'item_category' => $itemCategory,
             'satuan' => $validated['satuan'],
             'stok_awal' => 0,
             'stok_terkini' => 0,
@@ -91,15 +97,28 @@ class ItemController extends Controller
             'can_be_loaned' => 'nullable|boolean',
         ]);
 
-        $item->update([
+        $updateData = [
             'kode_barang' => $validated['kode_barang'],
             'nama_barang' => $validated['nama_barang'],
-            'category_id' => $validated['category_id'],
-            'item_category' => ItemCategory::find($validated['category_id'])->kode ?? $item->item_category,
             'satuan' => $validated['satuan'],
             'catatan' => $validated['catatan'] ?? null,
             'can_be_loaned' => $request->has('can_be_loaned'),
-        ]);
+        ];
+
+        // Only update category if it's provided in the request
+        if (array_key_exists('category_id', $validated)) {
+            $categoryId = $validated['category_id'];
+            $updateData['category_id'] = $categoryId;
+            
+            if ($categoryId) {
+                $category = ItemCategory::find($categoryId);
+                $updateData['item_category'] = $category?->kode;
+            } else {
+                $updateData['item_category'] = null;
+            }
+        }
+
+        $item->update($updateData);
 
         return redirect()->route('items.index')
             ->with('success', 'Data barang berhasil diperbarui.');

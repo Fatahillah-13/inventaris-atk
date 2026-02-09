@@ -135,6 +135,7 @@ class UserManagementTest extends TestCase
         $this->assertTrue(Hash::check($originalPassword, $user->password));
     }
 
+    /** @test */
     public function admin_can_create_user_without_division()
     {
         $response = $this->actingAs($this->admin)->post(route('users.store'), [
@@ -155,6 +156,7 @@ class UserManagementTest extends TestCase
         ]);
     }
 
+    /** @test */
     public function staff_pengelola_cannot_access_user_index()
     {
         $staff = User::factory()->create(['role' => 'staff_pengelola']);
@@ -208,6 +210,7 @@ class UserManagementTest extends TestCase
         ]);
     }
 
+    /** @test */
     public function staff_pengelola_cannot_access_user_edit()
     {
         $staff = User::factory()->create(['role' => 'staff_pengelola']);
@@ -260,6 +263,7 @@ class UserManagementTest extends TestCase
         ]);
     }
 
+    /** @test */
     public function staff_pengelola_cannot_delete_user()
     {
         $staff = User::factory()->create(['role' => 'staff_pengelola']);
@@ -296,6 +300,7 @@ class UserManagementTest extends TestCase
         ]);
     }
 
+    /** @test */
     public function atk_master_cannot_access_user_index()
     {
         $atkMaster = User::factory()->create(['role' => 'atk_master']);
